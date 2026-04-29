@@ -1,0 +1,42 @@
+# Archivos sensibles
+.env
+
+# Cache y logs
+*.log
+*.cache
+.cache/
+logs/
+tmp/
+temp/
+
+# Composer
+/vendor/
+composer.lock
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Configuraciones de IDEs/editors
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Archivos de sistema operativo
+*.swp
+*.bak
+*.tmp
+
+# PHPUnit y test reports
+phpunit.xml
+phpunit.result.cache
+coverage/
+
+# Agentes de IA
+.agent/
+.agent_skills
+
+# Uploads (archivos subidos por usuarios)
+/uploads/*
+!/uploads/.gitkeep
