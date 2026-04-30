@@ -68,6 +68,176 @@ Flight::route('GET /egresado/stats', function () {
     EgresadoController::getStats();
 });
 
+// === MÓDULO: EVALUACIONES ===
+
+// GET /evaluaciones/catalogo — Lista pruebas disponibles (egresado)
+Flight::route('GET /evaluaciones/catalogo', function () {
+    if (!Middleware::authMiddleware()) return;
+    EvaluacionesController::getCatalogo();
+});
+
+// POST /evaluaciones/iniciar — Iniciar evaluación (egresado)
+Flight::route('POST /evaluaciones/iniciar', function () {
+    if (!Middleware::authMiddleware()) return;
+    EvaluacionesController::iniciar();
+});
+
+// POST /evaluaciones/respuesta — Guardar respuesta (egresado)
+Flight::route('POST /evaluaciones/respuesta', function () {
+    if (!Middleware::authMiddleware()) return;
+    EvaluacionesController::guardarRespuesta();
+});
+
+// POST /evaluaciones/finalizar — Finalizar evaluación (egresado)
+Flight::route('POST /evaluaciones/finalizar', function () {
+    if (!Middleware::authMiddleware()) return;
+    EvaluacionesController::finalizar();
+});
+
+// GET /evaluaciones/radar — Spider chart datos (egresado)
+Flight::route('GET /evaluaciones/radar', function () {
+    if (!Middleware::authMiddleware()) return;
+    EvaluacionesController::getRadar();
+});
+
+// === MÓDULO: VACANTES Y POSTULACIONES ===
+
+// GET /vacantes — Listar vacantes con filtros (público)
+Flight::route('GET /vacantes', function () {
+    VacantesController::listar();
+});
+
+// GET /vacantes/:id — Detalle de vacante (público)
+Flight::route('GET /vacantes/@id', function ($id) {
+    VacantesController::getDetalle($id);
+});
+
+// GET /egresado/postulaciones — Mis aplicaciones (egresado)
+Flight::route('GET /egresado/postulaciones', function () {
+    if (!Middleware::authMiddleware()) return;
+    VacantesController::getMisPostulaciones();
+});
+
+// POST /vacantes/:id/postular — Aplicar a vacante (egresado)
+Flight::route('POST /vacantes/@id/postular', function ($id) {
+    if (!Middleware::authMiddleware()) return;
+    VacantesController::postular($id);
+});
+
+// DELETE /vacantes/:id/cancelar-postulacion — Cancelar aplicación (egresado)
+Flight::route('DELETE /vacantes/@id/cancelar-postulacion', function ($id) {
+    if (!Middleware::authMiddleware()) return;
+    VacantesController::cancelarPostulacion($id);
+});
+
+// GET /vacantes/:id/match-detalle — Match score (egresado)
+Flight::route('GET /vacantes/@id/match-detalle', function ($id) {
+    if (!Middleware::authMiddleware()) return;
+    VacantesController::getMatchDetalle($id);
+});
+
+// === MÓDULO: EMPRESA ===
+
+// GET /empresa/perfil — Obtener perfil de empresa
+Flight::route('GET /empresa/perfil', function () {
+    if (!Middleware::authMiddleware()) return;
+    EmpresaController::getPerfil();
+});
+
+// PUT /empresa/perfil — Actualizar perfil
+Flight::route('PUT /empresa/perfil', function () {
+    if (!Middleware::authMiddleware()) return;
+    EmpresaController::updatePerfil();
+});
+
+// GET /empresa/dashboard/stats — Estadísticas del dashboard
+Flight::route('GET /empresa/dashboard/stats', function () {
+    if (!Middleware::authMiddleware()) return;
+    EmpresaController::getDashboardStats();
+});
+
+// GET /empresa/mis-vacantes — Lista de vacantes de la empresa
+Flight::route('GET /empresa/mis-vacantes', function () {
+    if (!Middleware::authMiddleware()) return;
+    EmpresaController::getMisVacantes();
+});
+
+// POST /empresa/vacantes — Crear nueva vacante
+Flight::route('POST /empresa/vacantes', function () {
+    if (!Middleware::authMiddleware()) return;
+    EmpresaController::crearVacante();
+});
+
+// GET /empresa/vacantes/:id/postulantes — Lista postulantes de una vacante
+Flight::route('GET /empresa/vacantes/@id/postulantes', function ($id) {
+    if (!Middleware::authMiddleware()) return;
+    EmpresaController::getPostulantes($id);
+});
+
+// PATCH /postulaciones/:id/estatus — Cambiar estatus de postulación
+Flight::route('PATCH /postulaciones/@id/estatus', function ($id) {
+    if (!Middleware::authMiddleware()) return;
+    EmpresaController::cambiarEstatusPostulacion($id);
+});
+
+// === ADMINISTRADOR ===
+
+// GET /admin/dashboard/global — Estadísticas globales
+Flight::route('GET /admin/dashboard/global', function () {
+    if (!Middleware::authMiddleware()) return;
+    AdminController::dashboardGlobal();
+});
+
+// GET /admin/empresas/pendientes — Empresas con convenio pendiente
+Flight::route('GET /admin/empresas/pendientes', function () {
+    if (!Middleware::authMiddleware()) return;
+    AdminController::empresasPendientes();
+});
+
+// PATCH /admin/empresas/:id/convenio — Aprobar/rechazar convenio
+Flight::route('PATCH /admin/empresas/@id/convenio', function ($id) {
+    if (!Middleware::authMiddleware()) return;
+    AdminController::actualizarConvenio($id);
+});
+
+// GET /admin/banco-preguntas — Lista de preguntas con filtros
+Flight::route('GET /admin/banco-preguntas', function () {
+    if (!Middleware::authMiddleware()) return;
+    AdminController::bancoPreguntas();
+});
+
+// POST /admin/banco-preguntas/generar-ia — Generar preguntas con IA
+Flight::route('POST /admin/banco-preguntas/generar-ia', function () {
+    if (!Middleware::authMiddleware()) return;
+    AdminController::generarPreguntasIA();
+});
+
+// === IA Y SERVICIOS ===
+
+// POST /ia/cv/optimizar-biografia — Optimizar biografía con IA
+Flight::route('POST /ia/cv/optimizar-biografia', function () {
+    if (!Middleware::authMiddleware()) return;
+    IaController::optimizarBiografia();
+});
+
+// GET /ia/cv/recomendaciones — Recomendaciones personalizadas
+Flight::route('GET /ia/cv/recomendaciones', function () {
+    if (!Middleware::authMiddleware()) return;
+    IaController::recomendaciones();
+});
+
+// POST /ia/chat/asesor — Chat con asesor IA
+Flight::route('POST /ia/chat/asesor', function () {
+    if (!Middleware::authMiddleware()) return;
+    IaController::chatAsesor();
+});
+
+// GET /egresado/cv/pdf — Generar/recuperar CV en PDF
+Flight::route('GET /egresado/cv/pdf', function () {
+    if (!Middleware::authMiddleware()) return;
+    IaController::cvPdf();
+});
+
 // === HEALTH CHECK ===
 
 Flight::route('GET /auth/health', function () {

@@ -26,6 +26,11 @@ require_once __DIR__ . '/app/services/JwtService.php';
 require_once __DIR__ . '/app/middleware/Middleware.php';
 require_once __DIR__ . '/app/controllers/AuthController.php';
 require_once __DIR__ . '/app/controllers/egresado-controller.php';
+require_once __DIR__ . '/app/controllers/vacantes-controller.php';
+require_once __DIR__ . '/app/controllers/evaluaciones-controller.php';
+require_once __DIR__ . '/app/controllers/empresa-controller.php';
+require_once __DIR__ . '/app/controllers/admin-controller.php';
+require_once __DIR__ . '/app/controllers/ia-controller.php';
 
 // Configuración de FlightPHP
 Flight::set('flight.base_url', '/');

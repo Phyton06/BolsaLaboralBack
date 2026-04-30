@@ -104,7 +104,54 @@
 
 ---
 
-### Módulo 3: MOTOR DE EVALUACIONES (EXAM)
+### Módulo 4: VACANTES Y POSTULACIONES ✅ COMPLETADO
+
+| # | Endpoint | Método | Auth | Estado |
+|---|----------|--------|------|--------|
+| 16 | /vacantes | GET | No | ✅ |
+| 17 | /vacantes/:id | GET | No | ✅ |
+| 18 | /vacantes/:id/match-detalle | GET | Sí | ✅ |
+| 19 | /vacantes/:id/postular | POST | Sí | ✅ |
+| 20 | /vacantes/:id/cancelar-postulacion | DELETE | Sí | ✅ |
+| 21 | /egresado/postulaciones | GET | Sí | ✅ |
+
+#### Detalles de pruebas:
+- **GET /vacantes**: ✅ Paginación, filtros (ubicacion, search, division_id, solo_convenio), match opcional
+- **GET /vacantes/:id**: ✅ Retorna detalle con empresa_nombre, perfil_idoneo (JSONB), analisis_ia
+- **GET /vacantes/:id/match-detalle**: ✅ Radar 5 dimensiones (técnicas, inglés, experiencia, carrera, soft skills)
+- **POST /vacantes/:id/postular**: ✅ Calcula match, valida duplicado, transacción
+- **DELETE /vacantes/:id/cancelar-postulacion**: ✅ Solo pendiente, DELETE físico, 404 si no existe
+- **GET /egresado/postulaciones**: ✅ Lista con empresa, estatus, match, fecha
+- **Auth**: ✅ 401 sin token, 400 duplicado, 404 no encontrado, 400 estatus no pendiente
+
+---
+
+### Módulo 3: MOTOR DE EVALUACIONES (EXAM) ✅ COMPLETADO
+
+| # | Endpoint | Método | Auth | Estado |
+|---|----------|--------|------|--------|
+| 11 | /evaluaciones/catalogo | GET | Sí | ✅ |
+| 12 | /evaluaciones/iniciar | POST | Sí | ✅ |
+| 13 | /evaluaciones/respuesta | POST | Sí | ✅ |
+| 14 | /evaluaciones/finalizar | POST | Sí | ✅ |
+| 15 | /evaluaciones/radar | GET | Sí | ✅ |
+
+#### Detalles de pruebas:
+- **GET /evaluaciones/catalogo**: ✅ Lista 4 tipos con estado, bloqueo (técnica 6 meses, otras para siempre)
+- **POST /evaluaciones/iniciar**: ✅ Crea evaluación, preguntas RANDOM sin respuesta_correcta, validación de bloqueo
+- **POST /evaluaciones/respuesta**: ✅ Guarda respuesta, calcula es_correcta, valida duplicado, valida tiempo expirado
+- **POST /evaluaciones/finalizar**: ✅ Calcula puntaje (67% con 2/3 correctas), detalle_resultados con categorías
+- **GET /evaluaciones/radar**: ✅ Spider chart alumno vs promedio_carrera (labels, alumno, promedio_carrera)
+- **Bloqueo**: ✅ Técnica 6 meses, psico/cogni/proy una vez para siempre
+- **Auth**: ✅ 401 sin token, 400 tipo inválido, 400 evaluación finalizada, 400 respuesta duplicada
+
+#### Reglas de Bloqueo:
+| Tipo | Primera vez | Después |
+|------|-------------|---------|
+| `tecnica` | ✅ Disponible | ⏳ 6 meses |
+| `psico` | ✅ Disponible | 🔒 Para siempre |
+| `cogni` | ✅ Disponible | 🔒 Para siempre |
+| `proy` | ✅ Disponible | 🔒 Para siempre |
 
 #### 11. [ ] GET /evaluaciones/catalogo
 - **Auth:** Sí
@@ -144,48 +191,45 @@
 
 ---
 
-### Módulo 4: VACANTES (JOBS)
+### Módulo 4: VACANTES (JOBS) ✅ COMPLETADO
 
-#### 16. [ ] GET /vacantes
+#### 16. [✅] GET /vacantes
 - **Auth:** No (público)
-- **Params:** `page, limit, search, ubicacion, division_id, match_min, solo_convenio`
-- **Response:** `{ data: [{ id, titulo, empresa, estatus_convenio, es_externa, match, ubicacion }], meta }`
+- **Params:** `page, limit, search, ubicacion, division_id, solo_convenio`
+- **Response:** `{ vacantes: [{ id, titulo, empresa, estatus_convenio, es_externa, match, ubicacion }], meta }`
 - **Tablas:** `vacantes`, `empresas`, `divisiones`
 - **Datos seed:** 15 vacantes (8 ITI, 7 Mercadotecnia)
-- **Commit planeado:** `feat: endpoint listar vacantes`
+- **Notas:** Match calculado si usuario egresado autenticado
 
-#### 17. [ ] GET /vacantes/:id
+#### 17. [✅] GET /vacantes/:id
 - **Auth:** No (público)
-- **Response:** `{ id, empresa_id, titulo, descripcion, ubicacion, perfil_idoneo, analisis_ia, url_externa }`
-- **Tablas:** `vacantes`, `empresas`
-- **Commit planeado:** `feat: endpoint detalle vacante`
+- **Response:** `{ id, empresa_id, empresa_nombre, titulo, descripcion, ubicacion, perfil_idoneo, analisis_ia, url_externa }`
+- **Tablas:** `vacantes`, `empresas`, `divisiones`
 
-#### 18. [ ] GET /vacantes/:id/match-detalle
+#### 18. [✅] GET /vacantes/:id/match-detalle
 - **Auth:** Sí (egresado)
-- **Response:** `{ match, comparativa_radar, feedback_ia }`
+- **Response:** `{ match, comparativa_radar: { labels, alumno, idoneo }, feedback_ia }`
 - **Tablas:** `vacantes`, `egresados`, `postulaciones`
-- **Commit planeado:** `feat: endpoint match detalle`
+- **Notas:** Radar de 5 dimensiones calculadas de JSONB real
 
-#### 19. [ ] POST /vacantes/:id/postular
+#### 19. [✅] POST /vacantes/:id/postular
 - **Auth:** Sí (egresado)
 - **Request:** `{}`
-- **Response:** `{ id_postulacion, status }`
+- **Response:** `{ id_postulacion, estatus, match }`
 - **Tablas:** `postulaciones`, `vacantes`, `egresados`
-- **Commit planeado:** `feat: endpoint postular vacante`
+- **Notas:** Match se calcula y guarda al postular. Validación de duplicado.
 
-#### 20. [ ] DELETE /vacantes/:id/cancelar-postulacion
+#### 20. [✅] DELETE /vacantes/:id/cancelar-postulacion
 - **Auth:** Sí (egresado)
-- **Request:** `{}`
-- **Response:** `{ "status": "success" }`
+- **Response:** `{ success, message }`
 - **Tablas:** `postulaciones`
-- **Commit planeado:** `feat: endpoint cancelar postulacion`
+- **Notas:** Solo permite cancelar si estatus='pendiente'. DELETE físico.
 
-#### 21. [ ] GET /egresado/postulaciones
+#### 21. [✅] GET /egresado/postulaciones
 - **Auth:** Sí (egresado)
-- **Response:** `[{ id_postulacion, vacante_titulo, empresa, estatus, fecha }]`
+- **Response:** `[{ id_postulacion, vacante_titulo, empresa, estatus, match, fecha }]`
 - **Tablas:** `postulaciones`, `vacantes`, `empresas`
 - **Datos seed:** 25 postulaciones (distribuidas en 4 estados)
-- **Commit planeado:** `feat: endpoint postulaciones egresado`
 
 ---
 
@@ -238,9 +282,51 @@
 
 ---
 
-### Módulo 6: ADMINISTRADOR (ADMIN)
+### Módulo 5: EMPRESA (BUSINESS) ✅ COMPLETADO
 
-#### 29. [ ] GET /admin/dashboard/global
+| # | Endpoint | Método | Auth | Estado |
+|---|----------|--------|------|--------|
+| 22 | /empresa/perfil | GET | Sí | ✅ |
+| 23 | /empresa/perfil | PUT | Sí | ✅ |
+| 24 | /empresa/dashboard/stats | GET | Sí | ✅ |
+| 25 | /empresa/mis-vacantes | GET | Sí | ✅ |
+| 26 | /empresa/vacantes | POST | Sí | ✅ |
+| 27 | /empresa/vacantes/:id/postulantes | GET | Sí | ✅ |
+| 28 | /postulaciones/:id/estatus | PATCH | Sí | ✅ |
+
+#### Detalles de pruebas:
+- **GET /empresa/perfil**: ✅ Retorna nombre_comercial, rfc, estatus_convenio, contacto (JSONB)
+- **PUT /empresa/perfil**: ✅ Actualiza nombre_comercial y contacto JSONB
+- **GET /empresa/dashboard/stats**: ✅ vacantes_activas, total_postulantes, entrevistas_pendientes
+- **GET /empresa/mis-vacantes**: ✅ Lista con COUNT de postulantes por vacante
+- **POST /empresa/vacantes**: ✅ Crea vacante con perfil_idoneo JSONB, valida campos requeridos
+- **GET /empresa/vacantes/:id/postulantes**: ✅ Lista postulantes ordenados por match DESC, verifica pertenencia
+- **PATCH /postulaciones/:id/estatus**: ✅ Cambia estatus (pendiente/revisada/aceptada/rechazada), valida pertenencia
+- **Auth**: ✅ 401 sin token, 403 con rol egresado, 404 vacante de otra empresa, 400 estatus inválido
+
+---
+
+### Módulo 6: ADMINISTRADOR (ADMIN) ✅ COMPLETADO
+
+| # | Endpoint | Método | Auth | Estado |
+|---|----------|--------|------|--------|
+| 29 | /admin/dashboard/global | GET | Sí | ✅ |
+| 30 | /admin/empresas/pendientes | GET | Sí | ✅ |
+| 31 | /admin/empresas/:id/convenio | PATCH | Sí | ✅ |
+| 32 | /admin/banco-preguntas | GET | Sí | ✅ |
+| 33 | /admin/banco-preguntas/generar-ia | POST | Sí | ✅ |
+
+#### Detalles de pruebas:
+- **GET /admin/dashboard/global**: ✅ total_egresados, total_empresas, total_contratados, inserción_por_carrera, vacantes_por_estatus, postulaciones_por_estatus
+- **GET /admin/empresas/pendientes**: ✅ Lista empresas con estatus_convenio='pendiente', desaparecen al aprobar
+- **PATCH /admin/empresas/:id/convenio**: ✅ Aprueba/rechaza, valida estatus, 404 si no existe
+- **GET /admin/banco-preguntas**: ✅ Paginación, filtros division_id, tipo_prueba, parsea JSONB opciones
+- **POST /admin/banco-preguntas/generar-ia**: ✅ Valida carrera_id, cantidad, tipo_prueba (placeholder IA)
+- **Auth**: ✅ 401 sin token, 403 con rol egresado, 400 estatus inválido, 404 empresa no existe
+
+---
+
+### Módulo 7: IA Y DOCUMENTOS (SERVICES)
 - **Auth:** Sí (admin)
 - **Response:** `{ total_egresados, total_empresas, total_contratados, insercion_por_carrera }`
 - **Tablas:** `usuarios`, `egresados`, `empresas`, `postulaciones`
@@ -277,31 +363,29 @@
 
 ---
 
-### Módulo 7: IA Y DOCUMENTOS (SERVICES)
+### Módulo 7: IA Y DOCUMENTOS (SERVICES) ✅ COMPLETADO
 
-#### 34. [ ] POST /ia/cv/optimizar-biografia
-- **Auth:** Sí
+#### 34. [✅] POST /ia/cv/optimizar-biografia
+- **Auth:** Sí (egresado)
 - **Request:** `{ "texto_actual": "string" }`
-- **Response:** `{ "biografia_optimizada": "string" }`
-- **Commit planeado:** `feat: endpoint optimizar biografia IA`
+- **Response:** `{ "biografia_optimizada", "longitud_original", "longitud_optimizada" }`
+- **Notas:** Usa contexto del perfil (habilidades, trayectoria, carrera) para generar biografía
 
-#### 35. [ ] GET /ia/cv/recomendaciones
+#### 35. [✅] GET /ia/cv/recomendaciones
 - **Auth:** Sí (egresado)
-- **Response:** `{ puntos_fuertes, puntos_debiles, cursos_sugeridos }`
-- **Tablas:** `egresados`, `evaluaciones`, `vacantes`
-- **Commit planeado:** `feat: endpoint recomendaciones IA`
+- **Response:** `{ puntos_fuertes, puntos_debiles, cursos_sugeridos, resumen }`
+- **Notas:** Analiza evaluaciones, habilidades, foto, CV para generar recomendaciones
 
-#### 36. [ ] POST /ia/chat/asesor
-- **Auth:** Sí
+#### 36. [✅] POST /ia/chat/asesor
+- **Auth:** Sí (cualquier rol)
 - **Request:** `{ "mensaje", "contexto_pantalla" }`
-- **Response:** `{ "respuesta": "string" }`
-- **Commit planeado:** `feat: endpoint chat asesor IA`
+- **Response:** `{ "respuesta", "contexto" }`
+- **Notas:** Respuestas contextuales por categoría: vacantes, evaluaciones, CV, perfil, postulaciones
 
-#### 37. [ ] GET /egresado/cv/pdf
+#### 37. [✅] GET /egresado/cv/pdf
 - **Auth:** Sí (egresado)
-- **Descripción:** Genera o recupera link de Drive
-- **Response:** `{ pdf_url, ultima_generacion }`
-- **Commit planeado:** `feat: endpoint CV PDF`
+- **Response:** `{ pdf_url, ultima_generacion, preview }`
+- **Notas:** Placeholder para Google Drive API, retorna vista previa completa del CV
 
 ---
 
@@ -311,12 +395,14 @@
 |--------|-------|-------------|------------|
 | AUTH | 4 | 4 ✅ | 0 |
 | EGRESADO | 6 | 6 ✅ | 0 |
-| EVALUACIONES | 5 | 0 | 5 |
-| VACANTES | 6 | 0 | 6 |
-| EMPRESA | 7 | 0 | 7 |
-| ADMIN | 5 | 0 | 5 |
-| IA/SERVICES | 4 | 0 | 4 |
-| **TOTAL** | **37** | **10** | **27** |
+| EVALUACIONES | 5 | 5 ✅ | 0 |
+| VACANTES | 6 | 6 ✅ | 0 |
+| EMPRESA | 7 | 7 ✅ | 0 |
+| ADMIN | 5 | 5 ✅ | 0 |
+| IA/SERVICES | 4 | 4 ✅ | 0 |
+| **TOTAL** | **37** | **37 ✅** | **0** |
+
+🎉 **API COMPLETA — 37/37 endpoints implementados y probados**
 
 ---
 
@@ -329,7 +415,7 @@ AUTH → EGRESADO → VACANTES → EVALUACIONES → EMPRESA → ADMIN → IA
 **Orden propuesto de implementación:**
 1. ~~AUTH~~ ✅
 2. ~~EGRESADO~~ ✅
-3. VACANTES (necesario para postulaciones)
+3. ~~VACANTES~~ ✅
 4. EVALUACIONES (usa egresados y carreras)
 5. EMPRESA (usa vacantes y postulaciones)
 6. ADMIN (usa todas las tablas)
