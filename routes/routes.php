@@ -68,6 +68,38 @@ Flight::route('GET /egresado/stats', function () {
     EgresadoController::getStats();
 });
 
+// === MÓDULO: EVALUACIONES ===
+
+// GET /evaluaciones/catalogo — Lista pruebas disponibles (egresado)
+Flight::route('GET /evaluaciones/catalogo', function () {
+    if (!Middleware::authMiddleware()) return;
+    EvaluacionesController::getCatalogo();
+});
+
+// POST /evaluaciones/iniciar — Iniciar evaluación (egresado)
+Flight::route('POST /evaluaciones/iniciar', function () {
+    if (!Middleware::authMiddleware()) return;
+    EvaluacionesController::iniciar();
+});
+
+// POST /evaluaciones/respuesta — Guardar respuesta (egresado)
+Flight::route('POST /evaluaciones/respuesta', function () {
+    if (!Middleware::authMiddleware()) return;
+    EvaluacionesController::guardarRespuesta();
+});
+
+// POST /evaluaciones/finalizar — Finalizar evaluación (egresado)
+Flight::route('POST /evaluaciones/finalizar', function () {
+    if (!Middleware::authMiddleware()) return;
+    EvaluacionesController::finalizar();
+});
+
+// GET /evaluaciones/radar — Spider chart datos (egresado)
+Flight::route('GET /evaluaciones/radar', function () {
+    if (!Middleware::authMiddleware()) return;
+    EvaluacionesController::getRadar();
+});
+
 // === MÓDULO: VACANTES Y POSTULACIONES ===
 
 // GET /vacantes — Listar vacantes con filtros (público)

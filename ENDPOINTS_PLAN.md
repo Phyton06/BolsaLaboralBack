@@ -126,7 +126,32 @@
 
 ---
 
-### Módulo 3: MOTOR DE EVALUACIONES (EXAM)
+### Módulo 3: MOTOR DE EVALUACIONES (EXAM) ✅ COMPLETADO
+
+| # | Endpoint | Método | Auth | Estado |
+|---|----------|--------|------|--------|
+| 11 | /evaluaciones/catalogo | GET | Sí | ✅ |
+| 12 | /evaluaciones/iniciar | POST | Sí | ✅ |
+| 13 | /evaluaciones/respuesta | POST | Sí | ✅ |
+| 14 | /evaluaciones/finalizar | POST | Sí | ✅ |
+| 15 | /evaluaciones/radar | GET | Sí | ✅ |
+
+#### Detalles de pruebas:
+- **GET /evaluaciones/catalogo**: ✅ Lista 4 tipos con estado, bloqueo (técnica 6 meses, otras para siempre)
+- **POST /evaluaciones/iniciar**: ✅ Crea evaluación, preguntas RANDOM sin respuesta_correcta, validación de bloqueo
+- **POST /evaluaciones/respuesta**: ✅ Guarda respuesta, calcula es_correcta, valida duplicado, valida tiempo expirado
+- **POST /evaluaciones/finalizar**: ✅ Calcula puntaje (67% con 2/3 correctas), detalle_resultados con categorías
+- **GET /evaluaciones/radar**: ✅ Spider chart alumno vs promedio_carrera (labels, alumno, promedio_carrera)
+- **Bloqueo**: ✅ Técnica 6 meses, psico/cogni/proy una vez para siempre
+- **Auth**: ✅ 401 sin token, 400 tipo inválido, 400 evaluación finalizada, 400 respuesta duplicada
+
+#### Reglas de Bloqueo:
+| Tipo | Primera vez | Después |
+|------|-------------|---------|
+| `tecnica` | ✅ Disponible | ⏳ 6 meses |
+| `psico` | ✅ Disponible | 🔒 Para siempre |
+| `cogni` | ✅ Disponible | 🔒 Para siempre |
+| `proy` | ✅ Disponible | 🔒 Para siempre |
 
 #### 11. [ ] GET /evaluaciones/catalogo
 - **Auth:** Sí
