@@ -82,48 +82,25 @@
 
 ---
 
-### Módulo 2: EGRESADO (PROFILE)
+### Módulo 2: EGRESADO (PROFILE) ✅ COMPLETADO
 
-#### 5. [ ] GET /egresado/perfil
-- **Auth:** Sí (Bearer)
-- **Response:** `{ id, nombre, carrera, division, foto_url, contacto, biografia_ia, trayectoria, habilidades }`
-- **Tablas:** `usuarios`, `egresados`, `carreras`, `divisiones`
-- **Datos seed:** 10 egresados con perfiles completos
-- **Commit planeado:** `feat: endpoint perfil egresado`
+| # | Endpoint | Método | Auth | Estado | Commit |
+|---|----------|--------|------|--------|--------|
+| 5 | /egresado/perfil | GET | Sí | ✅ | feat: GET /egresado/perfil |
+| 6 | /egresado/perfil/biografia | PUT | Sí | ✅ | feat: PUT /egresado/perfil/biografia |
+| 7 | /egresado/perfil/trayectoria | PUT | Sí | ✅ | feat: PUT /egresado/perfil/trayectoria |
+| 8 | /egresado/perfil/habilidades | PUT | Sí | ✅ | feat: PUT /egresado/perfil/habilidades |
+| 9 | /egresado/foto | POST | Sí | ✅ | feat: POST /egresado/foto |
+| 10 | /egresado/stats | GET | Sí | ✅ | feat: GET /egresado/stats |
 
-#### 6. [ ] PUT /egresado/perfil/biografia
-- **Auth:** Sí
-- **Request:** `{ "biografia": "string" }`
-- **Response:** `{ "biografia_ia": "string" }` (procesada por IA)
-- **Tablas:** `egresados`
-- **Commit planeado:** `feat: endpoint biografia egresado`
-
-#### 7. [ ] PUT /egresado/perfil/trayectoria
-- **Auth:** Sí
-- **Request:** `{ "trayectoria": [{ "tipo", "empresa", "descripcion", "fecha" }] }`
-- **Response:** `{ "status": "success" }`
-- **Tablas:** `egresados`
-- **Commit planeado:** `feat: endpoint trayectoria egresado`
-
-#### 8. [ ] PUT /egresado/perfil/habilidades
-- **Auth:** Sí
-- **Request:** `{ "tecnicas": [], "blandas": [], "idiomas": [] }`
-- **Response:** `{ "status": "success" }`
-- **Tablas:** `egresados`
-- **Commit planeado:** `feat: endpoint habilidades egresado`
-
-#### 9. [ ] POST /egresado/foto
-- **Auth:** Sí
-- **Request:** `Multipart/form-data (file)`
-- **Response:** `{ "foto_url": "string", "drive_id": "string" }`
-- **Tablas:** `egresados`
-- **Commit planeado:** `feat: endpoint foto egresado`
-
-#### 10. [ ] GET /egresado/stats
-- **Auth:** Sí
-- **Response:** `{ postulaciones_activas, match_promedio, pruebas_completadas, vistas_perfil }`
-- **Tablas:** `postulaciones`, `evaluaciones`, `egresados`
-- **Commit planeado:** `feat: endpoint stats egresado`
+#### Detalles de pruebas:
+- **GET /egresado/perfil**: ✅ Retorna perfil completo con carrera, división, contacto, trayectoria, habilidades
+- **PUT /egresado/perfil/biografia**: ✅ Actualiza biografia_ia correctamente
+- **PUT /egresado/perfil/trayectoria**: ✅ Actualiza JSONB de trayectoria
+- **PUT /egresado/perfil/habilidades**: ✅ Actualiza JSONB de habilidades (tecnicas, blandas, idiomas)
+- **POST /egresado/foto**: ✅ Valida archivo (placeholder hasta integración con Drive)
+- **GET /egresado/stats**: ✅ Retorna postulaciones_activas, match_promedio, pruebas_completadas, vistas_perfil
+- **Auth**: ✅ 401 sin token, 403 con rol incorrecto, 200 con egresado
 
 ---
 
@@ -333,13 +310,13 @@
 | Módulo | Total | Completados | Pendientes |
 |--------|-------|-------------|------------|
 | AUTH | 4 | 4 ✅ | 0 |
-| EGRESADO | 6 | 0 | 6 |
+| EGRESADO | 6 | 6 ✅ | 0 |
 | EVALUACIONES | 5 | 0 | 5 |
 | VACANTES | 6 | 0 | 6 |
 | EMPRESA | 7 | 0 | 7 |
 | ADMIN | 5 | 0 | 5 |
 | IA/SERVICES | 4 | 0 | 4 |
-| **TOTAL** | **37** | **4** | **33** |
+| **TOTAL** | **37** | **10** | **27** |
 
 ---
 
