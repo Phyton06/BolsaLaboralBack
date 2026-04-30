@@ -15,16 +15,16 @@ class Middleware
      * Obtiene el token JWT del header Authorization o del query param.
      */
     public static function extraerToken(): ?string {
-        $request = Flight::request();
-
         // Intentar header Authorization: Bearer <token>
-        $authHeader = $request->getHeader('Authorization');
+        // FlightPHP v2 expone headers en $_SERVER como HTTP_AUTHORIZATION
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+
         if ($authHeader && str_starts_with($authHeader, 'Bearer ')) {
             return substr($authHeader, 7);
         }
 
         // Intentar query param ?token=
-        $token = $request->query->get('token');
+        $token = $_GET['token'] ?? null;
         if ($token) {
             return $token;
         }
