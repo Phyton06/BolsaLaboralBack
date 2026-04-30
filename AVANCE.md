@@ -177,10 +177,34 @@ Se utilizan las tablas existentes:
 - Contraseñas hasheadas con `PASSWORD_BCRYPT`
 - CORS configurado con variable de entorno `FRONTEND_URL`
 
+
+### Pruebas con Bruno
+
+Abre la colección en Bruno:
+
+1. Instalar Bruno desde https://www.usebruno.com
+2. Abrir colección → seleccionar `bruno/BolsaLaboralAuth`
+3. Seleccionar entorno `Local`
+4. Ejecutar en orden:
+   - **01-Login** → copia el `token` de la respuesta
+   - **02-Logout** → verifica que revoca el token
+   - **03-Onboarding** → completa datos de contacto
+   - **04-CambiarPassword** → cambia la contraseña
+
+Variables de entorno (`environments/Local.bru`):
+
+| Variable | Valor | Descripción |
+|----------|-------|-------------|
+| `url` | `http://localhost:8080` | URL base del servidor |
+| `matricula` | `20240001` | Matrícula del usuario de prueba |
+| `password` | `test1234` | Contraseña del usuario de prueba |
+| `token` | _(se actualiza)_ | JWT token (copiar del login) |
+
 ### Próximos pasos
 
-- [ ] Instalar dependencias: `composer install`
-- [ ] Configurar `.env` con credenciales reales
-- [ ] Crear usuario de prueba para validar login
-- [ ] Probar los 4 endpoints con Postman o curl
+- [x] Instalar dependencias: `composer install`
+- [x] Configurar `.env` con credenciales reales
+- [x] Crear usuario de prueba para validar login
+- [x] Probar los 4 endpoints con curl (todos funcionando)
+- [x] Crear colección de Bruno para pruebas
 - [ ] Implementar módulo de ofertas de empleo (pendiente)
