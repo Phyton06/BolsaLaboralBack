@@ -162,7 +162,7 @@ class EgresadoController {
             
             $pdo->commit();
             
-            responderExito(null, 'Trayectoria actualizada correctamente');
+            responderExito([], 'Trayectoria actualizada correctamente');
             
         } catch (Exception $e) {
             handleTransactionError($pdo, 'Error al actualizar trayectoria: ' . $e->getMessage(), 500);
@@ -212,7 +212,7 @@ class EgresadoController {
             
             $pdo->commit();
             
-            responderExito(null, 'Habilidades actualizadas correctamente');
+            responderExito([], 'Habilidades actualizadas correctamente');
             
         } catch (Exception $e) {
             handleTransactionError($pdo, 'Error al actualizar habilidades: ' . $e->getMessage(), 500);
