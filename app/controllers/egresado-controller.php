@@ -93,6 +93,7 @@ class EgresadoController {
             $stmt = $pdo->prepare($sql);
             $stmt->bindValue(':biografia', $biografia, PDO::PARAM_STR);
             $stmt->bindValue(':usuario_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
             
             if ($stmt->rowCount() === 0) {
                 $pdo->rollBack();
@@ -149,6 +150,7 @@ class EgresadoController {
             $stmt = $pdo->prepare($sql);
             $stmt->bindValue(':trayectoria', $trayectoriaJson, PDO::PARAM_STR);
             $stmt->bindValue(':usuario_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
             
             if ($stmt->rowCount() === 0) {
                 $pdo->rollBack();
@@ -197,6 +199,7 @@ class EgresadoController {
             $stmt = $pdo->prepare($sql);
             $stmt->bindValue(':habilidades', $habilidadesJson, PDO::PARAM_STR);
             $stmt->bindValue(':usuario_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
             
             if ($stmt->rowCount() === 0) {
                 $pdo->rollBack();
