@@ -1,15 +1,14 @@
 meta {
-  name: "02 - Logout"
-  type: "http"
+  name: 02 - Logout
+  type: http
   seq: 2
 }
 
 post {
-  url: "{{url}}/auth/logout"
+  url: {{url}}/auth/logout
+  auth: bearer
 }
 
-auth {
-  bearer {
-    token: "{{token}}"
-  }
+auth:bearer {
+  token: {{token}}
 }
