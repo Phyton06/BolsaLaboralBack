@@ -2,43 +2,64 @@
 .env
 .env.*
 *.env.*
+.env.local
+.env.*.local
 
 # Cache y logs
 *.log
 *.cache
+*.log.*
 .cache/
 logs/
 tmp/
 temp/
+runtime/
 
 # Composer
 /vendor/
 composer.lock
+composer.phar
+
+# PHP
+*.php-cs-fixer.cache
+.phpstan.cache/
+.phpunit.result.cache
+phpunit.xml
+phpunit.xml.dist
+
+# Cobertura de tests
+coverage/
+.clover
+.php_cs.cache
 
 # Archivos del sistema
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Configuraciones de IDEs/editors
 .idea/
 .vscode/
 *.sublime-project
 *.sublime-workspace
-
-# Archivos de sistema operativo
 *.swp
-*.bak
-*.tmp
-
-# PHPUnit y test reports
-phpunit.xml
-phpunit.result.cache
-coverage/
+*.swo
+*~
 
 # Agentes de IA
 .agent/
-.agent_skills
+.agent_skills/
+.opencode/
 
 # Uploads (archivos subidos por usuarios)
 /uploads/*
 !/uploads/.gitkeep
+
+# Configuración de servidor (no versionar)
+.htaccess
+nginx.conf
+*.conf
+
+# Depuración
+*.debug
+Xdebug*
