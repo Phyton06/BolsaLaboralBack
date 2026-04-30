@@ -68,6 +68,42 @@ Flight::route('GET /egresado/stats', function () {
     EgresadoController::getStats();
 });
 
+// === MÓDULO: VACANTES Y POSTULACIONES ===
+
+// GET /vacantes — Listar vacantes con filtros (público)
+Flight::route('GET /vacantes', function () {
+    VacantesController::listar();
+});
+
+// GET /vacantes/:id — Detalle de vacante (público)
+Flight::route('GET /vacantes/@id', function ($id) {
+    VacantesController::getDetalle($id);
+});
+
+// GET /egresado/postulaciones — Mis aplicaciones (egresado)
+Flight::route('GET /egresado/postulaciones', function () {
+    if (!Middleware::authMiddleware()) return;
+    VacantesController::getMisPostulaciones();
+});
+
+// POST /vacantes/:id/postular — Aplicar a vacante (egresado)
+Flight::route('POST /vacantes/@id/postular', function ($id) {
+    if (!Middleware::authMiddleware()) return;
+    VacantesController::postular($id);
+});
+
+// DELETE /vacantes/:id/cancelar-postulacion — Cancelar aplicación (egresado)
+Flight::route('DELETE /vacantes/@id/cancelar-postulacion', function ($id) {
+    if (!Middleware::authMiddleware()) return;
+    VacantesController::cancelarPostulacion($id);
+});
+
+// GET /vacantes/:id/match-detalle — Match score (egresado)
+Flight::route('GET /vacantes/@id/match-detalle', function ($id) {
+    if (!Middleware::authMiddleware()) return;
+    VacantesController::getMatchDetalle($id);
+});
+
 // === HEALTH CHECK ===
 
 Flight::route('GET /auth/health', function () {

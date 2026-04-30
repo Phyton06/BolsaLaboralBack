@@ -104,6 +104,28 @@
 
 ---
 
+### Módulo 4: VACANTES Y POSTULACIONES ✅ COMPLETADO
+
+| # | Endpoint | Método | Auth | Estado |
+|---|----------|--------|------|--------|
+| 16 | /vacantes | GET | No | ✅ |
+| 17 | /vacantes/:id | GET | No | ✅ |
+| 18 | /vacantes/:id/match-detalle | GET | Sí | ✅ |
+| 19 | /vacantes/:id/postular | POST | Sí | ✅ |
+| 20 | /vacantes/:id/cancelar-postulacion | DELETE | Sí | ✅ |
+| 21 | /egresado/postulaciones | GET | Sí | ✅ |
+
+#### Detalles de pruebas:
+- **GET /vacantes**: ✅ Paginación, filtros (ubicacion, search, division_id, solo_convenio), match opcional
+- **GET /vacantes/:id**: ✅ Retorna detalle con empresa_nombre, perfil_idoneo (JSONB), analisis_ia
+- **GET /vacantes/:id/match-detalle**: ✅ Radar 5 dimensiones (técnicas, inglés, experiencia, carrera, soft skills)
+- **POST /vacantes/:id/postular**: ✅ Calcula match, valida duplicado, transacción
+- **DELETE /vacantes/:id/cancelar-postulacion**: ✅ Solo pendiente, DELETE físico, 404 si no existe
+- **GET /egresado/postulaciones**: ✅ Lista con empresa, estatus, match, fecha
+- **Auth**: ✅ 401 sin token, 400 duplicado, 404 no encontrado, 400 estatus no pendiente
+
+---
+
 ### Módulo 3: MOTOR DE EVALUACIONES (EXAM)
 
 #### 11. [ ] GET /evaluaciones/catalogo
@@ -144,48 +166,45 @@
 
 ---
 
-### Módulo 4: VACANTES (JOBS)
+### Módulo 4: VACANTES (JOBS) ✅ COMPLETADO
 
-#### 16. [ ] GET /vacantes
+#### 16. [✅] GET /vacantes
 - **Auth:** No (público)
-- **Params:** `page, limit, search, ubicacion, division_id, match_min, solo_convenio`
-- **Response:** `{ data: [{ id, titulo, empresa, estatus_convenio, es_externa, match, ubicacion }], meta }`
+- **Params:** `page, limit, search, ubicacion, division_id, solo_convenio`
+- **Response:** `{ vacantes: [{ id, titulo, empresa, estatus_convenio, es_externa, match, ubicacion }], meta }`
 - **Tablas:** `vacantes`, `empresas`, `divisiones`
 - **Datos seed:** 15 vacantes (8 ITI, 7 Mercadotecnia)
-- **Commit planeado:** `feat: endpoint listar vacantes`
+- **Notas:** Match calculado si usuario egresado autenticado
 
-#### 17. [ ] GET /vacantes/:id
+#### 17. [✅] GET /vacantes/:id
 - **Auth:** No (público)
-- **Response:** `{ id, empresa_id, titulo, descripcion, ubicacion, perfil_idoneo, analisis_ia, url_externa }`
-- **Tablas:** `vacantes`, `empresas`
-- **Commit planeado:** `feat: endpoint detalle vacante`
+- **Response:** `{ id, empresa_id, empresa_nombre, titulo, descripcion, ubicacion, perfil_idoneo, analisis_ia, url_externa }`
+- **Tablas:** `vacantes`, `empresas`, `divisiones`
 
-#### 18. [ ] GET /vacantes/:id/match-detalle
+#### 18. [✅] GET /vacantes/:id/match-detalle
 - **Auth:** Sí (egresado)
-- **Response:** `{ match, comparativa_radar, feedback_ia }`
+- **Response:** `{ match, comparativa_radar: { labels, alumno, idoneo }, feedback_ia }`
 - **Tablas:** `vacantes`, `egresados`, `postulaciones`
-- **Commit planeado:** `feat: endpoint match detalle`
+- **Notas:** Radar de 5 dimensiones calculadas de JSONB real
 
-#### 19. [ ] POST /vacantes/:id/postular
+#### 19. [✅] POST /vacantes/:id/postular
 - **Auth:** Sí (egresado)
 - **Request:** `{}`
-- **Response:** `{ id_postulacion, status }`
+- **Response:** `{ id_postulacion, estatus, match }`
 - **Tablas:** `postulaciones`, `vacantes`, `egresados`
-- **Commit planeado:** `feat: endpoint postular vacante`
+- **Notas:** Match se calcula y guarda al postular. Validación de duplicado.
 
-#### 20. [ ] DELETE /vacantes/:id/cancelar-postulacion
+#### 20. [✅] DELETE /vacantes/:id/cancelar-postulacion
 - **Auth:** Sí (egresado)
-- **Request:** `{}`
-- **Response:** `{ "status": "success" }`
+- **Response:** `{ success, message }`
 - **Tablas:** `postulaciones`
-- **Commit planeado:** `feat: endpoint cancelar postulacion`
+- **Notas:** Solo permite cancelar si estatus='pendiente'. DELETE físico.
 
-#### 21. [ ] GET /egresado/postulaciones
+#### 21. [✅] GET /egresado/postulaciones
 - **Auth:** Sí (egresado)
-- **Response:** `[{ id_postulacion, vacante_titulo, empresa, estatus, fecha }]`
+- **Response:** `[{ id_postulacion, vacante_titulo, empresa, estatus, match, fecha }]`
 - **Tablas:** `postulaciones`, `vacantes`, `empresas`
 - **Datos seed:** 25 postulaciones (distribuidas en 4 estados)
-- **Commit planeado:** `feat: endpoint postulaciones egresado`
 
 ---
 
@@ -329,7 +348,7 @@ AUTH → EGRESADO → VACANTES → EVALUACIONES → EMPRESA → ADMIN → IA
 **Orden propuesto de implementación:**
 1. ~~AUTH~~ ✅
 2. ~~EGRESADO~~ ✅
-3. VACANTES (necesario para postulaciones)
+3. ~~VACANTES~~ ✅
 4. EVALUACIONES (usa egresados y carreras)
 5. EMPRESA (usa vacantes y postulaciones)
 6. ADMIN (usa todas las tablas)
