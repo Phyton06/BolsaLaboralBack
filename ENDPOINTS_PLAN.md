@@ -328,9 +328,96 @@ AUTH → EGRESADO → VACANTES → EVALUACIONES → EMPRESA → ADMIN → IA
 
 **Orden propuesto de implementación:**
 1. ~~AUTH~~ ✅
-2. EGRESADO (necesario para login + perfil)
+2. ~~EGRESADO~~ ✅
 3. VACANTES (necesario para postulaciones)
 4. EVALUACIONES (usa egresados y carreras)
 5. EMPRESA (usa vacantes y postulaciones)
 6. ADMIN (usa todas las tablas)
 7. IA/SERVICES (depende de datos existentes)
+
+---
+
+## 📚 Lecciones Aprendidas y Guía de Implementación
+
+### Checklist para cada nuevo endpoint
+
+- [ ] Crear método `public static function` en el controller (kebab-case file)
+- [ ] Registrar ruta en `routes/routes.php`
+- [ ] Cargar controller en `index.php`
+- [ ] Verificar middleware: `if (!Middleware::authMiddleware()) return;`
+- [ ] Verificar rol: `if (!Middleware::requireRole('rol')) return;`
+- [ ] Usar `getUsuarioActual()` para datos del usuario
+- [ ] Extraer campos del request EXPLÍCITAMENTE (NO usar `(array) $requestData`)
+- [ ] Validar campos con `validarCampos()` y verificar resultado
+- [ ] Usar transacciones para writes: `beginTransaction()`, `commit()`, `rollBack()`
+- [ ] Llamar `$stmt->execute()` después de `bindValue()`
+- [ ] Usar `JSON_UNESCAPED_UNICODE` en `json_encode()`
+- [ ] Usar `responderExito([], ...)` (NO null)
+- [ ] Probar: 200 con auth correcto, 401 sin token, 403 con rol incorrecto
+- [ ] Commit descriptivo en español
+
+### Patrón de Controller (Template)
+
+```php
+public static function endpointName() {
+    if (!Middleware::authMiddleware()) return;
+    if (!Middleware::requireRole('rol')) return;
+    
+    $usuario = getUsuarioActual();
+    $userId = $usuario['id'];
+    
+    $pdo = getPgConnection();
+    
+    try {
+        // GET: consultar directamente
+        // POST/PUT/DELETE: usar transacción
+        $pdo->beginTransaction();
+        
+        $stmt = $pdo->prepare("SQL QUERY");
+        $stmt->bindValue(':param', $valor, PDO::PARAM_STR);
+        $stmt->bindValue(':usuario_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        if ($stmt->rowCount() === 0) {
+            $pdo->rollBack();
+            responderError('Recurso no encontrado', 404);
+            return;
+        }
+        
+        $pdo->commit();
+        responderExito($data, 'Mensaje exitoso');
+        
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        handleTransactionError($pdo, 'Error: ' . $e->getMessage(), 500);
+    }
+}
+```
+
+### Errores Comunes a Evitar
+
+1. ❌ `PDO::ATTR_EMULATE_PREPARES => false` → Usa `true`
+2. ❌ `json_encode($data)` sin `JSON_UNESCAPED_UNICODE`
+3. ❌ `(array) $requestData` → Extrae campos explícitamente
+4. ❌ `Middleware::authMiddleware();` sin verificar retorno
+5. ❌ `responderExito(null, ...)` → Usa `[]`
+6. ❌ `bindValue()` sin `execute()`
+7. ❌ Olvidar `$pdo->commit()` después de transacción
+
+### Flujo de Trabajo Actualizado
+
+```
+1. Implementar endpoint (controller + route + index.php)
+2. Commit inicial
+3. Reiniciar servidor (php -S)
+4. Probar con curl:
+   a. Sin auth → debe dar 401
+   b. Con rol incorrecto → debe dar 403
+   c. Con auth correcto → debe dar 200 con datos correctos
+5. Si hay errores:
+   a. Verificar logs: cat /tmp/php_server.log
+   b. Revisar errores comunes (lista arriba)
+   c. Corregir y hacer commit
+6. Marcar ✅ en este plan
+7. Siguiente endpoint
+```
