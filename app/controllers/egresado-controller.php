@@ -3,8 +3,8 @@
 class EgresadoController {
     // GET /egresado/perfil
     public static function getProfile() {
-        Middleware::authMiddleware();
-        Middleware::requireRole('egresado');
+        if (!Middleware::authMiddleware()) return;
+        if (!Middleware::requireRole('egresado')) return;
         
         $usuario = getUsuarioActual();
         $userId = $usuario['id'];
@@ -68,8 +68,8 @@ class EgresadoController {
     
     // PUT /egresado/perfil/biografia
     public static function updateBiography() {
-        Middleware::authMiddleware();
-        Middleware::requireRole('egresado');
+        if (!Middleware::authMiddleware()) return;
+        if (!Middleware::requireRole('egresado')) return;
         
         $usuario = getUsuarioActual();
         $userId = $usuario['id'];
@@ -112,8 +112,8 @@ class EgresadoController {
     
     // PUT /egresado/perfil/trayectoria
     public static function updateTrayectoria() {
-        Middleware::authMiddleware();
-        Middleware::requireRole('egresado');
+        if (!Middleware::authMiddleware()) return;
+        if (!Middleware::requireRole('egresado')) return;
         
         $usuario = getUsuarioActual();
         $userId = $usuario['id'];
@@ -169,8 +169,8 @@ class EgresadoController {
     
     // PUT /egresado/perfil/habilidades
     public static function updateHabilidades() {
-        Middleware::authMiddleware();
-        Middleware::requireRole('egresado');
+        if (!Middleware::authMiddleware()) return;
+        if (!Middleware::requireRole('egresado')) return;
         
         $usuario = getUsuarioActual();
         $userId = $usuario['id'];
@@ -225,8 +225,8 @@ class EgresadoController {
     
     // POST /egresado/foto
     public static function uploadFoto() {
-        Middleware::authMiddleware();
-        Middleware::requireRole('egresado');
+        if (!Middleware::authMiddleware()) return;
+        if (!Middleware::requireRole('egresado')) return;
         
         // Check if file was uploaded
         if (!isset($_FILES['foto']) || $_FILES['foto']['error'] !== UPLOAD_ERR_OK) {
@@ -243,8 +243,8 @@ class EgresadoController {
     
     // GET /egresado/stats
     public static function getStats() {
-        Middleware::authMiddleware();
-        Middleware::requireRole('egresado');
+        if (!Middleware::authMiddleware()) return;
+        if (!Middleware::requireRole('egresado')) return;
         
         $usuario = getUsuarioActual();
         $userId = $usuario['id'];
