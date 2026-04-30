@@ -282,6 +282,30 @@
 
 ---
 
+### Módulo 5: EMPRESA (BUSINESS) ✅ COMPLETADO
+
+| # | Endpoint | Método | Auth | Estado |
+|---|----------|--------|------|--------|
+| 22 | /empresa/perfil | GET | Sí | ✅ |
+| 23 | /empresa/perfil | PUT | Sí | ✅ |
+| 24 | /empresa/dashboard/stats | GET | Sí | ✅ |
+| 25 | /empresa/mis-vacantes | GET | Sí | ✅ |
+| 26 | /empresa/vacantes | POST | Sí | ✅ |
+| 27 | /empresa/vacantes/:id/postulantes | GET | Sí | ✅ |
+| 28 | /postulaciones/:id/estatus | PATCH | Sí | ✅ |
+
+#### Detalles de pruebas:
+- **GET /empresa/perfil**: ✅ Retorna nombre_comercial, rfc, estatus_convenio, contacto (JSONB)
+- **PUT /empresa/perfil**: ✅ Actualiza nombre_comercial y contacto JSONB
+- **GET /empresa/dashboard/stats**: ✅ vacantes_activas, total_postulantes, entrevistas_pendientes
+- **GET /empresa/mis-vacantes**: ✅ Lista con COUNT de postulantes por vacante
+- **POST /empresa/vacantes**: ✅ Crea vacante con perfil_idoneo JSONB, valida campos requeridos
+- **GET /empresa/vacantes/:id/postulantes**: ✅ Lista postulantes ordenados por match DESC, verifica pertenencia
+- **PATCH /postulaciones/:id/estatus**: ✅ Cambia estatus (pendiente/revisada/aceptada/rechazada), valida pertenencia
+- **Auth**: ✅ 401 sin token, 403 con rol egresado, 404 vacante de otra empresa, 400 estatus inválido
+
+---
+
 ### Módulo 6: ADMINISTRADOR (ADMIN)
 
 #### 29. [ ] GET /admin/dashboard/global

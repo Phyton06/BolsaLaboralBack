@@ -136,6 +136,50 @@ Flight::route('GET /vacantes/@id/match-detalle', function ($id) {
     VacantesController::getMatchDetalle($id);
 });
 
+// === MÓDULO: EMPRESA ===
+
+// GET /empresa/perfil — Obtener perfil de empresa
+Flight::route('GET /empresa/perfil', function () {
+    if (!Middleware::authMiddleware()) return;
+    EmpresaController::getPerfil();
+});
+
+// PUT /empresa/perfil — Actualizar perfil
+Flight::route('PUT /empresa/perfil', function () {
+    if (!Middleware::authMiddleware()) return;
+    EmpresaController::updatePerfil();
+});
+
+// GET /empresa/dashboard/stats — Estadísticas del dashboard
+Flight::route('GET /empresa/dashboard/stats', function () {
+    if (!Middleware::authMiddleware()) return;
+    EmpresaController::getDashboardStats();
+});
+
+// GET /empresa/mis-vacantes — Lista de vacantes de la empresa
+Flight::route('GET /empresa/mis-vacantes', function () {
+    if (!Middleware::authMiddleware()) return;
+    EmpresaController::getMisVacantes();
+});
+
+// POST /empresa/vacantes — Crear nueva vacante
+Flight::route('POST /empresa/vacantes', function () {
+    if (!Middleware::authMiddleware()) return;
+    EmpresaController::crearVacante();
+});
+
+// GET /empresa/vacantes/:id/postulantes — Lista postulantes de una vacante
+Flight::route('GET /empresa/vacantes/@id/postulantes', function ($id) {
+    if (!Middleware::authMiddleware()) return;
+    EmpresaController::getPostulantes($id);
+});
+
+// PATCH /postulaciones/:id/estatus — Cambiar estatus de postulación
+Flight::route('PATCH /postulaciones/@id/estatus', function ($id) {
+    if (!Middleware::authMiddleware()) return;
+    EmpresaController::cambiarEstatusPostulacion($id);
+});
+
 // === HEALTH CHECK ===
 
 Flight::route('GET /auth/health', function () {
