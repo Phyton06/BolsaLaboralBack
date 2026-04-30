@@ -212,6 +212,32 @@ Flight::route('POST /admin/banco-preguntas/generar-ia', function () {
     AdminController::generarPreguntasIA();
 });
 
+// === IA Y SERVICIOS ===
+
+// POST /ia/cv/optimizar-biografia — Optimizar biografía con IA
+Flight::route('POST /ia/cv/optimizar-biografia', function () {
+    if (!Middleware::authMiddleware()) return;
+    IaController::optimizarBiografia();
+});
+
+// GET /ia/cv/recomendaciones — Recomendaciones personalizadas
+Flight::route('GET /ia/cv/recomendaciones', function () {
+    if (!Middleware::authMiddleware()) return;
+    IaController::recomendaciones();
+});
+
+// POST /ia/chat/asesor — Chat con asesor IA
+Flight::route('POST /ia/chat/asesor', function () {
+    if (!Middleware::authMiddleware()) return;
+    IaController::chatAsesor();
+});
+
+// GET /egresado/cv/pdf — Generar/recuperar CV en PDF
+Flight::route('GET /egresado/cv/pdf', function () {
+    if (!Middleware::authMiddleware()) return;
+    IaController::cvPdf();
+});
+
 // === HEALTH CHECK ===
 
 Flight::route('GET /auth/health', function () {

@@ -306,9 +306,27 @@
 
 ---
 
-### Módulo 6: ADMINISTRADOR (ADMIN)
+### Módulo 6: ADMINISTRADOR (ADMIN) ✅ COMPLETADO
 
-#### 29. [ ] GET /admin/dashboard/global
+| # | Endpoint | Método | Auth | Estado |
+|---|----------|--------|------|--------|
+| 29 | /admin/dashboard/global | GET | Sí | ✅ |
+| 30 | /admin/empresas/pendientes | GET | Sí | ✅ |
+| 31 | /admin/empresas/:id/convenio | PATCH | Sí | ✅ |
+| 32 | /admin/banco-preguntas | GET | Sí | ✅ |
+| 33 | /admin/banco-preguntas/generar-ia | POST | Sí | ✅ |
+
+#### Detalles de pruebas:
+- **GET /admin/dashboard/global**: ✅ total_egresados, total_empresas, total_contratados, inserción_por_carrera, vacantes_por_estatus, postulaciones_por_estatus
+- **GET /admin/empresas/pendientes**: ✅ Lista empresas con estatus_convenio='pendiente', desaparecen al aprobar
+- **PATCH /admin/empresas/:id/convenio**: ✅ Aprueba/rechaza, valida estatus, 404 si no existe
+- **GET /admin/banco-preguntas**: ✅ Paginación, filtros division_id, tipo_prueba, parsea JSONB opciones
+- **POST /admin/banco-preguntas/generar-ia**: ✅ Valida carrera_id, cantidad, tipo_prueba (placeholder IA)
+- **Auth**: ✅ 401 sin token, 403 con rol egresado, 400 estatus inválido, 404 empresa no existe
+
+---
+
+### Módulo 7: IA Y DOCUMENTOS (SERVICES)
 - **Auth:** Sí (admin)
 - **Response:** `{ total_egresados, total_empresas, total_contratados, insercion_por_carrera }`
 - **Tablas:** `usuarios`, `egresados`, `empresas`, `postulaciones`
@@ -379,12 +397,12 @@
 |--------|-------|-------------|------------|
 | AUTH | 4 | 4 ✅ | 0 |
 | EGRESADO | 6 | 6 ✅ | 0 |
-| EVALUACIONES | 5 | 0 | 5 |
-| VACANTES | 6 | 0 | 6 |
-| EMPRESA | 7 | 0 | 7 |
-| ADMIN | 5 | 0 | 5 |
+| EVALUACIONES | 5 | 5 ✅ | 0 |
+| VACANTES | 6 | 6 ✅ | 0 |
+| EMPRESA | 7 | 7 ✅ | 0 |
+| ADMIN | 5 | 5 ✅ | 0 |
 | IA/SERVICES | 4 | 0 | 4 |
-| **TOTAL** | **37** | **10** | **27** |
+| **TOTAL** | **37** | **33** | **4** |
 
 ---
 
