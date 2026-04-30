@@ -1,5 +1,7 @@
 # Archivos sensibles
 .env
+.env.*
+*.env.*
 
 # Cache y logs
 *.log
