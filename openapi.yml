@@ -1,0 +1,356 @@
+openapi: 3.0.3
+info:
+  title: BolsaLaboral Auth API
+  description: |
+    Modulo de autenticacion y onboarding para el sistema de Bolsa de Trabajo.
+    Desarrollado para el Hackathon DITI 2026 — Universidad Tecnologica de la Costa.
+  version: 1.0.0
+  contact:
+    name: BolsaLaboralBack
+    url: https://github.com/Gentleman-Programming/BolsaLaboralBack
+
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo local
+
+tags:
+  - name: Auth
+    description: Endpoints de autenticacion y gestion de cuenta
+
+paths:
+  /auth/login:
+    post:
+      summary: Iniciar sesion con matricula y contrasena
+      description: Autentica al usuario por su matricula y devuelve un JWT access token + refresh token.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              matricula: "20240001"
+              password: test1234
+      responses:
+        '200':
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              example:
+                success: true
+                message: Inicio de sesion exitoso
+                data:
+                  token: eyJhbGciOiJIUzI1NiIs...
+                  refresh_token: eyJhbGciOiJIUzI1NiIs...
+                  user:
+                    id: 1
+                    nombre: Juan Perez Garcia
+                    rol: egresado
+                    primer_ingreso: true
+        '400':
+          description: Campos requeridos faltantes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: "El campo 'matricula' es requerido"
+        '401':
+          description: Matricula o contrasena incorrectos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: Matricula o contrasena incorrectos
+
+  /auth/logout:
+    post:
+      summary: Cerrar sesion (revoca token)
+      description: Agrega el token actual a la blacklist para invalidarlo.
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Sesion cerrada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+              example:
+                success: true
+                message: Sesion cerrada correctamente
+                data: {}
+        '401':
+          description: Token requerido o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: Token de autenticacion requerido
+
+  /auth/onboarding:
+    post:
+      summary: Completar datos de contacto en primer inicio
+      description: Actualiza los datos de contacto del usuario y marca primer_ingreso como false.
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnboardingRequest'
+            example:
+              telefono: "+521234567890"
+              correo_personal: juan@email.com
+              linkedin: https://linkedin.com/in/juan
+      responses:
+        '200':
+          description: Datos de contacto actualizados correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnboardingResponse'
+              example:
+                success: true
+                message: Datos de contacto actualizados correctamente
+                data:
+                  user:
+                    id: 1
+                    primer_ingreso: false
+        '400':
+          description: Campos requeridos faltantes o rol no requiere onboarding
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: "El campo 'telefono' es requerido"
+
+  /auth/password:
+    put:
+      summary: Cambiar contrasena del usuario
+      description: Cambia la contrasena del usuario autenticado. Requiere verificar la contrasena actual.
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+            example:
+              old_password: test1234
+              new_password: nueva123
+      responses:
+        '200':
+          description: Contrasena actualizada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangePasswordResponse'
+              example:
+                success: true
+                message: Contrasena actualizada correctamente
+                data: {}
+        '400':
+          description: Contrasena actual incorrecta o nueva muy corta (minimo 6 caracteres)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: La contrasena actual es incorrecta
+        '401':
+          description: Usuario no autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: Usuario no autenticado
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT obtenido del endpoint /auth/login
+
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - matricula
+        - password
+      properties:
+        matricula:
+          type: string
+          description: Matricula del usuario
+          example: "20240001"
+        password:
+          type: string
+          description: Contrasena en texto plano
+          format: password
+          example: test1234
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Inicio de sesion exitoso
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+              description: JWT access token (1 hora de validez)
+              example: eyJhbGciOiJIUzI1NiIs...
+            refresh_token:
+              type: string
+              description: Refresh token (30 dias de validez)
+              example: eyJhbGciOiJIUzI1NiIs...
+            user:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int64
+                  example: 1
+                nombre:
+                  type: string
+                  description: Nombre completo del usuario
+                  example: Juan Perez Garcia
+                rol:
+                  type: string
+                  enum: [egresado, empresa, admin]
+                  description: Rol del usuario en el sistema
+                  example: egresado
+                primer_ingreso:
+                  type: boolean
+                  description: Indica si es el primer inicio de sesion
+                  example: true
+
+    LogoutResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Sesion cerrada correctamente
+        data:
+          type: object
+
+    OnboardingRequest:
+      type: object
+      required:
+        - telefono
+        - correo_personal
+      properties:
+        telefono:
+          type: string
+          description: Numero de telefono del usuario
+          example: "+521234567890"
+        correo_personal:
+          type: string
+          description: Correo electronico personal
+          format: email
+          example: juan@email.com
+        linkedin:
+          type: string
+          description: URL del perfil de LinkedIn (opcional)
+          format: uri
+          example: https://linkedin.com/in/juan
+
+    OnboardingResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Datos de contacto actualizados correctamente
+        data:
+          type: object
+          properties:
+            user:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int64
+                  example: 1
+                primer_ingreso:
+                  type: boolean
+                  example: false
+
+    ChangePasswordRequest:
+      type: object
+      required:
+        - old_password
+        - new_password
+      properties:
+        old_password:
+          type: string
+          description: Contrasena actual del usuario
+          format: password
+          example: test1234
+        new_password:
+          type: string
+          description: Nueva contrasena (minimo 6 caracteres)
+          format: password
+          minLength: 6
+          example: nueva123
+
+    ChangePasswordResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Contrasena actualizada correctamente
+        data:
+          type: object
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Descripcion del error
+          example: Descripcion del error
+        ticket:
+          type: string
+          description: Folio de soporte para seguimiento
+          example: ERR-20260430-0042
