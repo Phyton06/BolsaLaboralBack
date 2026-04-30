@@ -180,6 +180,38 @@ Flight::route('PATCH /postulaciones/@id/estatus', function ($id) {
     EmpresaController::cambiarEstatusPostulacion($id);
 });
 
+// === ADMINISTRADOR ===
+
+// GET /admin/dashboard/global — Estadísticas globales
+Flight::route('GET /admin/dashboard/global', function () {
+    if (!Middleware::authMiddleware()) return;
+    AdminController::dashboardGlobal();
+});
+
+// GET /admin/empresas/pendientes — Empresas con convenio pendiente
+Flight::route('GET /admin/empresas/pendientes', function () {
+    if (!Middleware::authMiddleware()) return;
+    AdminController::empresasPendientes();
+});
+
+// PATCH /admin/empresas/:id/convenio — Aprobar/rechazar convenio
+Flight::route('PATCH /admin/empresas/@id/convenio', function ($id) {
+    if (!Middleware::authMiddleware()) return;
+    AdminController::actualizarConvenio($id);
+});
+
+// GET /admin/banco-preguntas — Lista de preguntas con filtros
+Flight::route('GET /admin/banco-preguntas', function () {
+    if (!Middleware::authMiddleware()) return;
+    AdminController::bancoPreguntas();
+});
+
+// POST /admin/banco-preguntas/generar-ia — Generar preguntas con IA
+Flight::route('POST /admin/banco-preguntas/generar-ia', function () {
+    if (!Middleware::authMiddleware()) return;
+    AdminController::generarPreguntasIA();
+});
+
 // === HEALTH CHECK ===
 
 Flight::route('GET /auth/health', function () {

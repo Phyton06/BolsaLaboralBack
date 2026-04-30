@@ -29,6 +29,7 @@ require_once __DIR__ . '/app/controllers/egresado-controller.php';
 require_once __DIR__ . '/app/controllers/vacantes-controller.php';
 require_once __DIR__ . '/app/controllers/evaluaciones-controller.php';
 require_once __DIR__ . '/app/controllers/empresa-controller.php';
+require_once __DIR__ . '/app/controllers/admin-controller.php';
 
 // Configuración de FlightPHP
 Flight::set('flight.base_url', '/');
