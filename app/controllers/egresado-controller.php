@@ -135,7 +135,7 @@ class EgresadoController {
         }
         
         // Encode to JSON for jsonb storage
-        $trayectoriaJson = json_encode($trayectoria);
+        $trayectoriaJson = json_encode($trayectoria, JSON_UNESCAPED_UNICODE);
         if (json_last_error() !== JSON_ERROR_NONE) {
             responderError('Formato de trayectoria inválido', 400);
             return;
@@ -184,7 +184,7 @@ class EgresadoController {
         }
         
         // Encode to JSON for jsonb storage
-        $habilidadesJson = json_encode($habilidades);
+        $habilidadesJson = json_encode($habilidades, JSON_UNESCAPED_UNICODE);
         if (json_last_error() !== JSON_ERROR_NONE) {
             responderError('Formato de habilidades inválido', 400);
             return;
