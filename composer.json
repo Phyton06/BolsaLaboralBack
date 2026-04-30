@@ -1,0 +1,21 @@
+{
+    "name": "utc/bolsa-laboral-back",
+    "description": "API backend para el sistema de Bolsa de Trabajo — Universidad Tecnológica de la Costa",
+    "type": "project",
+    "require": {
+        "php": ">=8.0",
+        "mikecao/flight": "^2.0",
+        "firebase/php-jwt": "^6.10",
+        "vlucas/phpdotenv": "^5.6",
+        "phpmailer/phpmailer": "^6.9",
+        "robmorgan/phinx": "^0.16.0"
+    },
+    "autoload": {
+        "files": [
+            "app/Lib/helpers.php"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}
