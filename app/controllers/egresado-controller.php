@@ -176,9 +176,16 @@ class EgresadoController {
         $userId = $usuario['id'];
         
         $requestData = Flight::request()->data;
-        $habilidades = (array) $requestData;
+        $tecnicas = $requestData->tecnicas ?? [];
+        $blandas = $requestData->blandas ?? [];
+        $idiomas = $requestData->idiomas ?? [];
+        $habilidades = [
+            'tecnicas' => is_array($tecnicas) ? $tecnicas : [],
+            'blandas' => is_array($blandas) ? $blandas : [],
+            'idiomas' => is_array($idiomas) ? $idiomas : [],
+        ];
         
-        if (empty($habilidades)) {
+        if (empty($habilidades['tecnicas']) && empty($habilidades['blandas']) && empty($habilidades['idiomas'])) {
             responderError('No se proporcionaron habilidades', 400);
             return;
         }
