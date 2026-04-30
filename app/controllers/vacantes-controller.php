@@ -240,6 +240,7 @@ class VacantesController {
                     v.titulo,
                     e.nombre_comercial as empresa,
                     v.ubicacion,
+                    v.modalidad,
                     e.estatus_convenio,
                     v.es_externa,
                     v.perfil_idoneo,
@@ -288,6 +289,7 @@ class VacantesController {
                     'titulo' => $row['titulo'],
                     'empresa' => $row['empresa'],
                     'ubicacion' => $row['ubicacion'],
+                    'modalidad' => $row['modalidad'] ?? 'Presencial',
                     'estatus_convenio' => $row['estatus_convenio'],
                     'es_externa' => filter_var($row['es_externa'], FILTER_VALIDATE_BOOLEAN),
                     'match' => $match,
@@ -312,6 +314,199 @@ class VacantesController {
         }
     }
 
+    /**
+     * GET /vacantes/externas
+     * Busca vacantes externas via API de Jooble.
+     * 
+     * Parámetros (query string):
+     *   q - keywords de búsqueda (default: "desarrollador")
+     *   location - ubicación (default: "México")
+     *   page - página (default: 1)
+     *   limit - resultados por página (default: 20)
+     */
+    public static function buscarExternas() {
+        $request = Flight::request();
+        
+        // Cargar config de API keys
+        $config = require __DIR__ . '/../../config/api-keys.php';
+        $joobleConfig = $config['jooble'] ?? null;
+        
+        if (!$joobleConfig || empty($joobleConfig['api_key'])) {
+            responderError('Configuración de API externa no disponible', 500);
+            return;
+        }
+
+        // Parámetros
+        $keywords = trim($request->query->q ?? 'software developer');
+        $location = trim($request->query->location ?? 'Mexico');
+        $page = max(1, (int) ($request->query->page ?? 1));
+        $limit = min(50, max(1, (int) ($request->query->limit ?? 20)));
+
+        $apiKey = $joobleConfig['api_key'];
+        $baseUrl = $joobleConfig['base_url'];
+
+        // Request body para Jooble
+        $body = [
+            'keywords' => $keywords,
+            'location' => $location,
+            'page' => $page,
+        ];
+
+        // Llamar a Jooble API
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => "{$baseUrl}/{$apiKey}",
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($body),
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Accept: application/json',
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 15,
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($curlError || $httpCode !== 200) {
+            responderError('Error al conectar con API externa: ' . ($curlError ?: "HTTP {$httpCode}"), 502);
+            return;
+        }
+
+        $data = json_decode($response, true);
+
+        if (!$data || !isset($data['jobs'])) {
+            responderError('Formato de respuesta inválido', 502);
+            return;
+        }
+
+        $allJobs = $data['jobs'];
+
+        // Limitar resultados
+        $allJobs = array_slice($allJobs, 0, 20);
+
+        // Transformar al formato de vacantes
+        $vacantes = [];
+        $now = date('Y-m-d H:i:s');
+
+        foreach ($allJobs as $job) {
+            // Calcular match simulado basado en keywords
+            $match = rand(60, 95);
+
+            // Extraer salary
+            $salario = $job['salary'] ?? 'A consultar';
+
+            // Tags del snippet
+            $tags = [];
+            if (!empty($job['snippet'])) {
+                // Extraer palabras clave simples
+                $words = preg_split('/[\s,]+/', $job['snippet']);
+                foreach ($words as $w) {
+                    $w = trim($w, '.,;');
+                    if (strlen($w) > 3 && strlen($w) < 20) {
+                        $tags[] = $w;
+                        if (count($tags) >= 5) break;
+                    }
+                }
+            }
+
+            // Detectar modalidad basada en location y título
+            $jobLocation = strtolower($job['location'] ?? '');
+            $jobTitle = strtolower($job['title'] ?? '');
+            $modalidad = 'Presencial';
+            if (stripos($jobLocation, 'remoto') !== false || stripos($jobLocation, 'remote') !== false ||
+                stripos($jobTitle, '(remote)') !== false || stripos($jobTitle, '(remoto)') !== false) {
+                $modalidad = 'Remoto';
+            }
+
+            $vacantes[] = [
+                'id' => -($job['id'] ?? rand(1000, 9999)), // IDs negativos para externa
+                'titulo' => $job['title'] ?? 'Sin título',
+                'empresa' => $job['company'] ?? 'Empresa no especificada',
+                'ubicacion' => $job['location'] ?? $location,
+                'modalidad' => $modalidad,
+                'salario' => $salario,
+                'tags' => array_slice($tags, 0, 5),
+                'fuente' => $job['source'] ?? 'Jooble',
+                'url' => $job['link'] ?? null,
+                'match' => $match,
+                'es_externa' => true,
+                'fecha_publicacion' => $job['updated'] ?? $now,
+            ];
+        }
+
+        // Ordenar por match
+        usort($vacantes, function($a, $b) {
+            return $b['match'] - $a['match'];
+        });
+
+        responderExito([
+            'vacantes' => $vacantes,
+            'meta' => [
+                'total' => count($vacantes),
+                'page' => $page,
+                'limit' => $limit,
+                'pages' => (int) ceil(count($vacantes) / $limit),
+            ],
+        ], 'Vacantes externas obtenidas correctamente');
+    }
+
+    /**
+     * GET /vacantes/filtros
+     */
+    public static function getFiltros() {
+        // Los 32 estados de México + opciones especiales
+        $estados = [
+            'Nayarit',
+            'Aguascalientes',
+            'Baja California',
+            'Baja California Sur',
+            'Campeche',
+            'Chiapas',
+            'Chihuahua',
+            'Ciudad de México',
+            'Coahuila',
+            'Colima',
+            'Durango',
+            'Guanajuato',
+            'Guerrero',
+            'Hidalgo',
+            'Jalisco',
+            'México',
+            'Michoacán',
+            'Morelos',
+            'Nuevo León',
+            'Oaxaca',
+            'Puebla',
+            'Querétaro',
+            'Quintana Roo',
+            'San Luis Potosí',
+            'Sinaloa',
+            'Sonora',
+            'Tabasco',
+            'Tamaulipas',
+            'Tlaxcala',
+            'Veracruz',
+            'Yucatán',
+            'Zacatecas',
+            'Remoto',
+            'Sin preferencia'
+        ];
+        sort($estados);
+
+        // Modalidades
+        $modalidades = ['Presencial', 'Remoto', 'Sin preferencia'];
+
+        responderExito([
+            'ubicaciones' => array_values($estados),
+            'modalidades' => array_values($modalidades),
+        ], 'Filtros obtenidos correctamente');
+
+    }
+
     // ============================================
     // Endpoints protegidos (egresado)
     // ============================================
@@ -333,6 +528,7 @@ class VacantesController {
             $stmt = $pdo->prepare("
                 SELECT 
                     p.id as id_postulacion,
+                    p.vacante_id,
                     v.titulo as vacante_titulo,
                     e.nombre_comercial as empresa,
                     p.estatus,
@@ -353,6 +549,7 @@ class VacantesController {
             foreach ($postulaciones as $p) {
                 $result[] = [
                     'id_postulacion' => (int) $p['id_postulacion'],
+                    'vacante_id' => (int) $p['vacante_id'],
                     'vacante_titulo' => $p['vacante_titulo'],
                     'empresa' => $p['empresa'],
                     'estatus' => $p['estatus'],

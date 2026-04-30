@@ -33,7 +33,9 @@ require_once __DIR__ . '/app/controllers/admin-controller.php';
 require_once __DIR__ . '/app/controllers/ia-controller.php';
 
 // Configuración de FlightPHP
+$baseUrl = $_ENV['APP_URL'] ?? 'http://localhost:8080';
 Flight::set('flight.base_url', '/');
+Flight::set('base_url', $baseUrl);
 Flight::set('flight.handle_errors', true);
 
 // Configuración CORS

@@ -11,6 +11,23 @@ declare(strict_types=1);
  *   PUT    /auth/password      — Cambiar contraseña
  */
 
+// === ARCHIVOS ESTÁTICOS (uploads) ===
+
+// GET /uploads/fotos/:filename — Servir fotos de perfil
+Flight::route('GET /uploads/fotos/@filename', function ($filename) {
+    $filePath = __DIR__ . '/../uploads/fotos/' . basename($filename);
+    if (!file_exists($filePath)) {
+        Flight::halt(404, 'Archivo no encontrado');
+    }
+    $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    $mimeTypes = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp'];
+    $mimeType = $mimeTypes[$ext] ?? 'application/octet-stream';
+    header("Content-Type: {$mimeType}");
+    header('Cache-Control: public, max-age=86400');
+    readfile($filePath);
+    exit;
+});
+
 // === MÓDULO: AUTENTICACIÓN ===
 
 // POST /auth/login — Login (público)
@@ -55,7 +72,14 @@ Flight::route('PUT /egresado/perfil/trayectoria', function () {
 
 // PUT /egresado/perfil/habilidades — Actualizar habilidades
 Flight::route('PUT /egresado/perfil/habilidades', function () {
+    if (!Middleware::authMiddleware()) return;
     EgresadoController::updateHabilidades();
+});
+
+// PUT /egresado/perfil/contacto — Actualizar datos de contacto
+Flight::route('PUT /egresado/perfil/contacto', function () {
+    if (!Middleware::authMiddleware()) return;
+    EgresadoController::updateContacto();
 });
 
 // POST /egresado/foto — Subir foto de perfil
@@ -105,6 +129,23 @@ Flight::route('GET /evaluaciones/radar', function () {
 // GET /vacantes — Listar vacantes con filtros (público)
 Flight::route('GET /vacantes', function () {
     VacantesController::listar();
+});
+
+// GET /vacantes/externas — Buscar vacantes externas via Jooble (público)
+Flight::route('GET /vacantes/externas', function () {
+    VacantesController::buscarExternas();
+});
+
+// GET /vacantes/filtros — Opciones para filtros (público)
+Flight::route('GET /vacantes/filtros', function () {
+    VacantesController::getFiltros();
+});
+
+// POST /admin/actualizar-vacantes — Actualizar ubicaciones de vacantes (dev)
+Flight::route('POST /admin/actualizar-vacantes', function () {
+    if (!Middleware::authMiddleware()) return;
+    requireOnce('app/controllers/admin-controller.php');
+    AdminController::actualizarVacantes();
 });
 
 // GET /vacantes/:id — Detalle de vacante (público)

@@ -12,7 +12,7 @@ class EgresadoController {
         $pdo = getPgConnection();
         
         try {
-            $sql = "SELECT 
+            $sql = "SELECT
                         e.usuario_id as id,
                         e.nombre,
                         e.apellido_paterno,
@@ -20,6 +20,7 @@ class EgresadoController {
                         c.nombre as carrera,
                         d.nombre as division,
                         e.periodo_egreso,
+                        e.foto_drive_id as foto_url,
                         e.biografia_ia,
                         e.contacto,
                         e.trayectoria,
@@ -51,7 +52,7 @@ class EgresadoController {
                 'carrera' => $perfil['carrera'] ?? null,
                 'division' => $perfil['division'] ?? null,
                 'periodo_egreso' => $perfil['periodo_egreso'],
-                'foto_url' => null, // Placeholder, no Google Drive integration yet
+                'foto_url' => $perfil['foto_url'] ?? null,
                 'contacto' => $contacto,
                 'biografia_ia' => $perfil['biografia_ia'],
                 'trayectoria' => $trayectoria,
@@ -223,22 +224,182 @@ class EgresadoController {
         }
     }
     
+    // PUT /egresado/perfil/contacto
+    public static function updateContacto() {
+        if (!Middleware::authMiddleware()) return;
+        if (!Middleware::requireRole('egresado')) return;
+
+        $usuario = getUsuarioActual();
+        $userId = $usuario['id'];
+
+        $requestData = Flight::request()->data;
+        $telefono = $requestData->telefono ?? null;
+        $correoPersonal = $requestData->correo_personal ?? null;
+        $linkedin = $requestData->linkedin ?? null;
+
+        // Validate formats
+        if ($telefono !== null && $telefono !== '') {
+            if (!preg_match('/^\+?[0-9\s\-]{7,15}$/', $telefono)) {
+                responderError('Formato de teléfono no válido', 400);
+                return;
+            }
+        }
+
+        if ($correoPersonal !== null && $correoPersonal !== '') {
+            if (!filter_var($correoPersonal, FILTER_VALIDATE_EMAIL)) {
+                responderError('Formato de correo electrónico no válido', 400);
+                return;
+            }
+        }
+
+        if ($linkedin !== null && $linkedin !== '') {
+            if (!preg_match('/^https:\/\/(www\.)?linkedin\.com\/.+$/', $linkedin)) {
+                responderError('URL de LinkedIn no válida (debe comenzar con https://linkedin.com/)', 400);
+                return;
+            }
+        }
+
+        // Build contacto object (only include provided fields, preserve existing)
+        $pdo = getPgConnection();
+
+        try {
+            // Get existing contacto first
+            $stmt = $pdo->prepare("SELECT contacto FROM egresados WHERE usuario_id = :usuario_id");
+            $stmt->execute([':usuario_id' => $userId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $contactoExistente = $row && $row['contacto'] ? json_decode($row['contacto'], true) : [];
+
+            // Merge: update only provided fields
+            $nuevoContacto = [
+                'telefono' => $telefono !== null ? $telefono : ($contactoExistente['telefono'] ?? null),
+                'correo_personal' => $correoPersonal !== null ? $correoPersonal : ($contactoExistente['correo_personal'] ?? null),
+                'linkedin' => $linkedin !== null ? $linkedin : ($contactoExistente['linkedin'] ?? null),
+            ];
+
+            $contactoJson = json_encode($nuevoContacto, JSON_UNESCAPED_UNICODE);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                responderError('Error al procesar datos de contacto', 400);
+                return;
+            }
+
+            $pdo->beginTransaction();
+
+            $sql = "UPDATE egresados SET contacto = CAST(:contacto AS jsonb) WHERE usuario_id = :usuario_id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':contacto', $contactoJson, PDO::PARAM_STR);
+            $stmt->bindValue(':usuario_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            if ($stmt->rowCount() === 0) {
+                $pdo->rollBack();
+                responderError('Egresado no encontrado', 404);
+                return;
+            }
+
+            $pdo->commit();
+
+            responderExito($nuevoContacto, 'Contacto actualizado correctamente');
+
+        } catch (Exception $e) {
+            handleTransactionError($pdo, 'Error al actualizar contacto: ' . $e->getMessage(), 500);
+        }
+    }
+
     // POST /egresado/foto
     public static function uploadFoto() {
         if (!Middleware::authMiddleware()) return;
         if (!Middleware::requireRole('egresado')) return;
-        
+
         // Check if file was uploaded
         if (!isset($_FILES['foto']) || $_FILES['foto']['error'] !== UPLOAD_ERR_OK) {
             responderError('No se subió ningún archivo de foto válido', 400);
             return;
         }
-        
-        // Mock response since Google Drive integration is not implemented
-        responderExito([
-            'foto_url' => 'placeholder',
-            'drive_id' => 'pending_integration'
-        ], 'Foto subida correctamente');
+
+        $file = $_FILES['foto'];
+
+        // Validate MIME type
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+
+        if (!in_array($mimeType, $allowedTypes, true)) {
+            responderError('Formato de imagen no válido. Solo se permiten JPG, PNG y WebP', 400);
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        $maxSize = 5 * 1024 * 1024;
+        if ($file['size'] > $maxSize) {
+            responderError('La imagen no debe superar los 5MB', 400);
+            return;
+        }
+
+        // Get file extension
+        $extension = match ($mimeType) {
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            default => 'jpg',
+        };
+
+        // Generate filename
+        $usuario = getUsuarioActual();
+        $userId = $usuario['id'];
+        $timestamp = time();
+        $filename = "usuario_{$userId}_{$timestamp}.{$extension}";
+
+        // Ensure uploads directory exists
+        $uploadDir = __DIR__ . '/../../uploads/fotos';
+        if (!is_dir($uploadDir)) {
+            if (!mkdir($uploadDir, 0755, true)) {
+                responderError('Error al crear directorio de uploads', 500);
+                return;
+            }
+        }
+
+        // Move uploaded file
+        $destination = $uploadDir . '/' . $filename;
+        if (!move_uploaded_file($file['tmp_name'], $destination)) {
+            responderError('Error al guardar la imagen', 500);
+            return;
+        }
+
+        // Build public URL
+        $baseUrl = rtrim(Flight::get('base_url') ?? 'http://localhost:8080', '/');
+        $fotoUrl = "{$baseUrl}/uploads/fotos/{$filename}";
+
+        // Update database
+        $pdo = getPgConnection();
+
+        try {
+            $pdo->beginTransaction();
+
+            $sql = "UPDATE egresados SET foto_drive_id = :foto_url WHERE usuario_id = :usuario_id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':foto_url', $fotoUrl, PDO::PARAM_STR);
+            $stmt->bindValue(':usuario_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            if ($stmt->rowCount() === 0) {
+                $pdo->rollBack();
+                // Remove uploaded file if user not found
+                @unlink($destination);
+                responderError('Egresado no encontrado', 404);
+                return;
+            }
+
+            $pdo->commit();
+
+            responderExito(['foto_url' => $fotoUrl], 'Foto actualizada correctamente');
+
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            // Remove uploaded file on error
+            @unlink($destination);
+            responderError('Error al guardar foto: ' . $e->getMessage(), 500);
+        }
     }
     
     // GET /egresado/stats

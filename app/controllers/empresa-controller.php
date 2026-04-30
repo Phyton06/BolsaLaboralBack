@@ -135,32 +135,52 @@ class EmpresaController {
             $stmt->execute();
             $vacantesActivas = (int) $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-            // Total postulantes
+            // Total postulaciones
             $stmt = $pdo->prepare("
-                SELECT COUNT(DISTINCT p.egresado_id) as total
+                SELECT COUNT(*) as total
                 FROM postulaciones p
                 JOIN vacantes v ON p.vacante_id = v.id
                 WHERE v.empresa_id = :uid
             ");
             $stmt->bindValue(':uid', $userId, PDO::PARAM_INT);
             $stmt->execute();
-            $totalPostulantes = (int) $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+            $totalPostulaciones = (int) $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-            // Entrevistas pendientes (postulaciones con estatus 'revisada')
+            // Postulaciones por estatus
             $stmt = $pdo->prepare("
-                SELECT COUNT(*) as total
+                SELECT p.estatus, COUNT(*) as count
                 FROM postulaciones p
                 JOIN vacantes v ON p.vacante_id = v.id
-                WHERE v.empresa_id = :uid AND p.estatus = 'revisada'
+                WHERE v.empresa_id = :uid
+                GROUP BY p.estatus
             ");
             $stmt->bindValue(':uid', $userId, PDO::PARAM_INT);
             $stmt->execute();
-            $entrevistasPendientes = (int) $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+            $porEstatus = ['pendiente' => 0, 'revisada' => 0, 'aceptada' => 0, 'rechazada' => 0];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                $porEstatus[$row['estatus']] = (int) $row['count'];
+            }
+
+            // Promedio de match
+            $stmt = $pdo->prepare("
+                SELECT COALESCE(ROUND(AVG(p.match_porcentaje)), 0) as avg_match
+                FROM postulaciones p
+                JOIN vacantes v ON p.vacante_id = v.id
+                WHERE v.empresa_id = :uid
+            ");
+            $stmt->bindValue(':uid', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            $promedioMatch = (int) $stmt->fetch(PDO::FETCH_ASSOC)['avg_match'];
+
+            // Entrevistas pendientes (postulaciones con estatus 'revisada')
+            $entrevistasPendientes = $porEstatus['revisada'];
 
             responderExito([
                 'vacantes_activas' => $vacantesActivas,
-                'total_postulantes' => $totalPostulantes,
+                'total_postulantes' => $totalPostulaciones,
                 'entrevistas_pendientes' => $entrevistasPendientes,
+                'postulaciones_por_estatus' => $porEstatus,
+                'promedio_match' => $promedioMatch,
             ], 'Estadísticas obtenidas correctamente');
 
         } catch (Exception $e) {
@@ -187,7 +207,8 @@ class EmpresaController {
                     v.descripcion,
                     v.ubicacion,
                     v.fecha_publicacion,
-                    COUNT(p.id) as postulantes_count
+                    COUNT(p.id) as postulantes_count,
+                    COALESCE(MAX(p.match_porcentaje), 0) as mejor_match
                 FROM vacantes v
                 LEFT JOIN postulaciones p ON v.id = p.vacante_id
                 WHERE v.empresa_id = :uid
@@ -206,6 +227,7 @@ class EmpresaController {
                     'descripcion' => $v['descripcion'],
                     'ubicacion' => $v['ubicacion'],
                     'postulantes_count' => (int) $v['postulantes_count'],
+                    'mejor_match' => (int) $v['mejor_match'],
                     'fecha_pub' => $v['fecha_publicacion'],
                 ];
             }
