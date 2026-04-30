@@ -1,0 +1,19 @@
+meta {
+  name: "03 - Onboarding"
+  type: "http"
+  seq: 3
+}
+
+post {
+  url: "{{url}}/auth/onboarding"
+  auth: bearer {{token}}
+  body: json
+}
+
+body:json {
+  {
+    "telefono": "+521234567890",
+    "correo_personal": "juan@email.com",
+    "linkedin": "https://linkedin.com/in/juan"
+  }
+}
