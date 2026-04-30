@@ -1,0 +1,359 @@
+# Plan de Endpoints - BolsaLaboralBack
+
+**Basado en:** `api_master_contract.md`  
+**Seed Data:** `db/seed.sql` ✅ Completado  
+**Servidor:** `php -S localhost:8080 -t public`  
+**Bruno:** v3.3.0 (OpenAPI 3.0)
+
+---
+
+## Estado del Seed Data ✅
+
+| Tabla | Registros | Detalle |
+|-------|-----------|---------|
+| divisiones | 4 | Sistemas, Económico-Administrativas, Industrial, Básicas |
+| carreras | 2 | ITI, Mercadotecnia |
+| config_pruebas | 4 | tecnica(45min), psico(30min), cogni(35min), proy(30min) |
+| usuarios | 15 | 10 egresados, 3 empresas, 2 admin |
+| egresados | 10 | 5 ITI, 5 Mercadotecnia |
+| empresas | 3 | TechCorp (activo), Constructora (pendiente), Innovatech (activo) |
+| vacantes | 15 | 8 ITI, 7 Mercadotecnia |
+| postulaciones | 25 | 7 pendientes, 7 aceptadas, 6 revisadas, 5 rechazadas |
+| evaluaciones | 12 | Pruebas completadas por egresados |
+| banco_preguntas | 80 | 25 técnicas ITI, 25 técnicas Mercadotecnia, 8 psico, 12 cogni, 10 proy |
+| respuestas_detalle | 77 | Respuestas de ejemplo |
+
+### Credenciales de Prueba
+
+| Rol | Matrícula | Password | Primer Ingreso |
+|-----|-----------|----------|----------------|
+| Egresado ITI | 20240001 | test1234 | ❌ (ya completó) |
+| Egresado ITI | 20240002 | test1234 | ✅ |
+| Egresado ITI | 20240003 | test1234 | ✅ |
+| Egresado ITI | 20240004 | test1234 | ✅ |
+| Egresado ITI | 20240005 | test1234 | ✅ |
+| Egresado Merc. | 20240006 | test1234 | ✅ |
+| Egresado Merc. | 20240007 | test1234 | ✅ |
+| Egresado Merc. | 20240008 | test1234 | ✅ |
+| Egresado Merc. | 20240009 | test1234 | ✅ |
+| Egresado Merc. | 20240010 | test1234 | ✅ |
+| Empresa | EMP001 | test1234 | ❌ (TechCorp) |
+| Empresa | EMP002 | test1234 | ✅ (Constructora) |
+| Empresa | EMP003 | test1234 | ✅ (Innovatech) |
+| Admin | ADMIN01 | admin123 | ❌ |
+| Admin | ADMIN02 | admin123 | ✅ |
+
+### Egresados con Evaluaciones Completadas
+
+| Egresado | Evaluaciones Completadas | Puntajes |
+|----------|--------------------------|----------|
+| Juan Carlos (1) | técnica ITI (87%), cognitiva (92%), psicométrica | 13/15 correctas |
+| María Fernanda (2) | técnica ITI (73%), proyectiva | 11/15 correctas |
+| Valentina (6) | técnica Merc. (93%), psicométrica, cognitiva (85%) | 14/15 correctas |
+| Roberto (7) | proyectiva, cognitiva (78%) | 9/10 correctas |
+| Diego (3) | cognitiva (88%) | 10/12 correctas |
+| Daniela (10) | técnica Merc. (80%) | 12/15 correctas |
+
+---
+
+## Flujo de Trabajo
+
+```
+1. Documentar endpoint en este .md
+2. Implementar endpoint
+3. Commit (en español, descriptivo)
+4. Probar con Bruno (actualizar colección)
+5. Marcar ✅ con link al commit
+6. Siguiente endpoint
+```
+
+---
+
+## Módulos del Contrato Maestro
+
+### Módulo 1: AUTH ✅ COMPLETADO
+
+| # | Endpoint | Método | Auth | Estado | Commit |
+|---|----------|--------|------|--------|--------|
+| 1 | /auth/login | POST | No | ✅ | feat: auth login |
+| 2 | /auth/logout | POST | Sí | ✅ | feat: auth logout |
+| 3 | /auth/onboarding | POST | Sí | ✅ | feat: auth onboarding |
+| 4 | /auth/password | PUT | Sí | ✅ | feat: auth password |
+
+---
+
+### Módulo 2: EGRESADO (PROFILE)
+
+#### 5. [ ] GET /egresado/perfil
+- **Auth:** Sí (Bearer)
+- **Response:** `{ id, nombre, carrera, division, foto_url, contacto, biografia_ia, trayectoria, habilidades }`
+- **Tablas:** `usuarios`, `egresados`, `carreras`, `divisiones`
+- **Datos seed:** 10 egresados con perfiles completos
+- **Commit planeado:** `feat: endpoint perfil egresado`
+
+#### 6. [ ] PUT /egresado/perfil/biografia
+- **Auth:** Sí
+- **Request:** `{ "biografia": "string" }`
+- **Response:** `{ "biografia_ia": "string" }` (procesada por IA)
+- **Tablas:** `egresados`
+- **Commit planeado:** `feat: endpoint biografia egresado`
+
+#### 7. [ ] PUT /egresado/perfil/trayectoria
+- **Auth:** Sí
+- **Request:** `{ "trayectoria": [{ "tipo", "empresa", "descripcion", "fecha" }] }`
+- **Response:** `{ "status": "success" }`
+- **Tablas:** `egresados`
+- **Commit planeado:** `feat: endpoint trayectoria egresado`
+
+#### 8. [ ] PUT /egresado/perfil/habilidades
+- **Auth:** Sí
+- **Request:** `{ "tecnicas": [], "blandas": [], "idiomas": [] }`
+- **Response:** `{ "status": "success" }`
+- **Tablas:** `egresados`
+- **Commit planeado:** `feat: endpoint habilidades egresado`
+
+#### 9. [ ] POST /egresado/foto
+- **Auth:** Sí
+- **Request:** `Multipart/form-data (file)`
+- **Response:** `{ "foto_url": "string", "drive_id": "string" }`
+- **Tablas:** `egresados`
+- **Commit planeado:** `feat: endpoint foto egresado`
+
+#### 10. [ ] GET /egresado/stats
+- **Auth:** Sí
+- **Response:** `{ postulaciones_activas, match_promedio, pruebas_completadas, vistas_perfil }`
+- **Tablas:** `postulaciones`, `evaluaciones`, `egresados`
+- **Commit planeado:** `feat: endpoint stats egresado`
+
+---
+
+### Módulo 3: MOTOR DE EVALUACIONES (EXAM)
+
+#### 11. [ ] GET /evaluaciones/catalogo
+- **Auth:** Sí
+- **Descripción:** Lista pruebas disponibles según carrera del usuario
+- **Response:** `[{ id, nombre, tipo, minutos, completada, ultimo_puntaje }]`
+- **Tablas:** `evaluaciones`, `config_pruebas`, `banco_preguntas`
+- **Datos seed:** 12 evaluaciones completadas, 80 preguntas disponibles
+- **Commit planeado:** `feat: endpoint catalogo evaluaciones`
+
+#### 12. [ ] POST /evaluaciones/iniciar
+- **Auth:** Sí
+- **Request:** `{ "id_prueba": 1 }`
+- **Response:** `{ evaluacion_id, preguntas: [{ id, pregunta, opciones }], expira_en }`
+- **Tablas:** `evaluaciones`, `banco_preguntas`
+- **Commit planeado:** `feat: endpoint iniciar evaluacion`
+
+#### 13. [ ] POST /evaluaciones/respuesta
+- **Auth:** Sí
+- **Request:** `{ "evaluacion_id", "pregunta_id", "opcion" }`
+- **Response:** `{ "status": "saved" }`
+- **Tablas:** `respuestas_detalle`
+- **Commit planeado:** `feat: endpoint respuesta evaluacion`
+
+#### 14. [ ] POST /evaluaciones/finalizar
+- **Auth:** Sí
+- **Request:** `{ "evaluacion_id" }`
+- **Response:** `{ puntaje_global, detalle_resultados, match_actualizado }`
+- **Tablas:** `evaluaciones`, `respuestas_detalle`, `banco_preguntas`
+- **Commit planeado:** `feat: endpoint finalizar evaluacion`
+
+#### 15. [ ] GET /evaluaciones/radar
+- **Auth:** Sí
+- **Descripción:** Datos para Spider Chart
+- **Response:** `{ labels, alumno, promedio_carrera }`
+- **Tablas:** `evaluaciones`, `respuestas_detalle`
+- **Commit planeado:** `feat: endpoint radar evaluaciones`
+
+---
+
+### Módulo 4: VACANTES (JOBS)
+
+#### 16. [ ] GET /vacantes
+- **Auth:** No (público)
+- **Params:** `page, limit, search, ubicacion, division_id, match_min, solo_convenio`
+- **Response:** `{ data: [{ id, titulo, empresa, estatus_convenio, es_externa, match, ubicacion }], meta }`
+- **Tablas:** `vacantes`, `empresas`, `divisiones`
+- **Datos seed:** 15 vacantes (8 ITI, 7 Mercadotecnia)
+- **Commit planeado:** `feat: endpoint listar vacantes`
+
+#### 17. [ ] GET /vacantes/:id
+- **Auth:** No (público)
+- **Response:** `{ id, empresa_id, titulo, descripcion, ubicacion, perfil_idoneo, analisis_ia, url_externa }`
+- **Tablas:** `vacantes`, `empresas`
+- **Commit planeado:** `feat: endpoint detalle vacante`
+
+#### 18. [ ] GET /vacantes/:id/match-detalle
+- **Auth:** Sí (egresado)
+- **Response:** `{ match, comparativa_radar, feedback_ia }`
+- **Tablas:** `vacantes`, `egresados`, `postulaciones`
+- **Commit planeado:** `feat: endpoint match detalle`
+
+#### 19. [ ] POST /vacantes/:id/postular
+- **Auth:** Sí (egresado)
+- **Request:** `{}`
+- **Response:** `{ id_postulacion, status }`
+- **Tablas:** `postulaciones`, `vacantes`, `egresados`
+- **Commit planeado:** `feat: endpoint postular vacante`
+
+#### 20. [ ] DELETE /vacantes/:id/cancelar-postulacion
+- **Auth:** Sí (egresado)
+- **Request:** `{}`
+- **Response:** `{ "status": "success" }`
+- **Tablas:** `postulaciones`
+- **Commit planeado:** `feat: endpoint cancelar postulacion`
+
+#### 21. [ ] GET /egresado/postulaciones
+- **Auth:** Sí (egresado)
+- **Response:** `[{ id_postulacion, vacante_titulo, empresa, estatus, fecha }]`
+- **Tablas:** `postulaciones`, `vacantes`, `empresas`
+- **Datos seed:** 25 postulaciones (distribuidas en 4 estados)
+- **Commit planeado:** `feat: endpoint postulaciones egresado`
+
+---
+
+### Módulo 5: EMPRESA (BUSINESS)
+
+#### 22. [ ] GET /empresa/perfil
+- **Auth:** Sí (empresa)
+- **Response:** `{ nombre_comercial, rfc, foto_url, estatus_convenio, contacto }`
+- **Tablas:** `empresas`, `usuarios`
+- **Commit planeado:** `feat: endpoint perfil empresa`
+
+#### 23. [ ] PUT /empresa/perfil
+- **Auth:** Sí (empresa)
+- **Request:** `{ "nombre_comercial", "contacto" }`
+- **Response:** `{ "status": "success" }`
+- **Tablas:** `empresas`
+- **Commit planeado:** `feat: endpoint actualizar perfil empresa`
+
+#### 24. [ ] GET /empresa/dashboard/stats
+- **Auth:** Sí (empresa)
+- **Response:** `{ vacantes_activas, total_postulantes, entrevistas_pendientes }`
+- **Tablas:** `vacantes`, `postulaciones`
+- **Commit planeado:** `feat: endpoint dashboard empresa`
+
+#### 25. [ ] GET /empresa/mis-vacantes
+- **Auth:** Sí (empresa)
+- **Response:** `[{ id, titulo, postulantes_count, fecha_pub }]`
+- **Tablas:** `vacantes`, `postulaciones`
+- **Commit planeado:** `feat: endpoint mis vacantes`
+
+#### 26. [ ] POST /empresa/vacantes
+- **Auth:** Sí (empresa)
+- **Request:** `{ "titulo", "descripcion", "ubicacion", "perfil_idoneo" }`
+- **Response:** `{ "id", "analisis_ia" }`
+- **Tablas:** `vacantes`
+- **Commit planeado:** `feat: endpoint crear vacante`
+
+#### 27. [ ] GET /empresa/vacantes/:id/postulantes
+- **Auth:** Sí (empresa)
+- **Response:** `[{ id_postulacion, alumno_nombre, match, estatus, egresado_id }]`
+- **Tablas:** `postulaciones`, `egresados`, `usuarios`
+- **Commit planeado:** `feat: endpoint postulantes de vacante`
+
+#### 28. [ ] PATCH /postulaciones/:id/estatus
+- **Auth:** Sí (empresa)
+- **Request:** `{ "nuevo_estatus": "revisada|aceptada|rechazada" }`
+- **Response:** `{ "status": "success" }`
+- **Tablas:** `postulaciones`
+- **Commit planeado:** `feat: endpoint cambiar estatus postulacion`
+
+---
+
+### Módulo 6: ADMINISTRADOR (ADMIN)
+
+#### 29. [ ] GET /admin/dashboard/global
+- **Auth:** Sí (admin)
+- **Response:** `{ total_egresados, total_empresas, total_contratados, insercion_por_carrera }`
+- **Tablas:** `usuarios`, `egresados`, `empresas`, `postulaciones`
+- **Commit planeado:** `feat: endpoint dashboard admin`
+
+#### 30. [ ] GET /admin/empresas/pendientes
+- **Auth:** Sí (admin)
+- **Response:** `[{ id, nombre, rfc, fecha_reg }]`
+- **Tablas:** `empresas`, `usuarios`
+- **Datos seed:** 1 empresa con estatus `pendiente` (Constructora del Pacífico)
+- **Commit planeado:** `feat: endpoint empresas pendientes`
+
+#### 31. [ ] PATCH /admin/empresas/:id/convenio
+- **Auth:** Sí (admin)
+- **Request:** `{ "estatus": "activo|rechazado" }`
+- **Response:** `{ "status": "success" }`
+- **Tablas:** `empresas`
+- **Commit planeado:** `feat: endpoint convenio empresa`
+
+#### 32. [ ] GET /admin/banco-preguntas
+- **Auth:** Sí (admin)
+- **Params:** `division_id, tipo_prueba`
+- **Response:** `[{ id, pregunta, carrera }]`
+- **Tablas:** `banco_preguntas`, `carreras`, `divisiones`
+- **Datos seed:** 80 preguntas
+- **Commit planeado:** `feat: endpoint banco preguntas`
+
+#### 33. [ ] POST /admin/banco-preguntas/generar-ia
+- **Auth:** Sí (admin)
+- **Request:** `{ "carrera_id", "cantidad" }`
+- **Response:** `{ "status": "preguntas_generadas", "count" }`
+- **Tablas:** `banco_preguntas`
+- **Commit planeado:** `feat: endpoint generar preguntas IA`
+
+---
+
+### Módulo 7: IA Y DOCUMENTOS (SERVICES)
+
+#### 34. [ ] POST /ia/cv/optimizar-biografia
+- **Auth:** Sí
+- **Request:** `{ "texto_actual": "string" }`
+- **Response:** `{ "biografia_optimizada": "string" }`
+- **Commit planeado:** `feat: endpoint optimizar biografia IA`
+
+#### 35. [ ] GET /ia/cv/recomendaciones
+- **Auth:** Sí (egresado)
+- **Response:** `{ puntos_fuertes, puntos_debiles, cursos_sugeridos }`
+- **Tablas:** `egresados`, `evaluaciones`, `vacantes`
+- **Commit planeado:** `feat: endpoint recomendaciones IA`
+
+#### 36. [ ] POST /ia/chat/asesor
+- **Auth:** Sí
+- **Request:** `{ "mensaje", "contexto_pantalla" }`
+- **Response:** `{ "respuesta": "string" }`
+- **Commit planeado:** `feat: endpoint chat asesor IA`
+
+#### 37. [ ] GET /egresado/cv/pdf
+- **Auth:** Sí (egresado)
+- **Descripción:** Genera o recupera link de Drive
+- **Response:** `{ pdf_url, ultima_generacion }`
+- **Commit planeado:** `feat: endpoint CV PDF`
+
+---
+
+## Resumen de Progreso
+
+| Módulo | Total | Completados | Pendientes |
+|--------|-------|-------------|------------|
+| AUTH | 4 | 4 ✅ | 0 |
+| EGRESADO | 6 | 0 | 6 |
+| EVALUACIONES | 5 | 0 | 5 |
+| VACANTES | 6 | 0 | 6 |
+| EMPRESA | 7 | 0 | 7 |
+| ADMIN | 5 | 0 | 5 |
+| IA/SERVICES | 4 | 0 | 4 |
+| **TOTAL** | **37** | **4** | **33** |
+
+---
+
+## Dependencias entre Módulos
+
+```
+AUTH → EGRESADO → VACANTES → EVALUACIONES → EMPRESA → ADMIN → IA
+```
+
+**Orden propuesto de implementación:**
+1. ~~AUTH~~ ✅
+2. EGRESADO (necesario para login + perfil)
+3. VACANTES (necesario para postulaciones)
+4. EVALUACIONES (usa egresados y carreras)
+5. EMPRESA (usa vacantes y postulaciones)
+6. ADMIN (usa todas las tablas)
+7. IA/SERVICES (depende de datos existentes)

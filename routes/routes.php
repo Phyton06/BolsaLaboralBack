@@ -36,6 +36,38 @@ Flight::route('PUT /auth/password', function () {
     AuthController::cambiarPassword();
 });
 
+// === MÓDULO: EGRESADO ===
+
+// GET /egresado/perfil — Obtener perfil completo
+Flight::route('GET /egresado/perfil', function () {
+    EgresadoController::getProfile();
+});
+
+// PUT /egresado/perfil/biografia — Actualizar biografía
+Flight::route('PUT /egresado/perfil/biografia', function () {
+    EgresadoController::updateBiography();
+});
+
+// PUT /egresado/perfil/trayectoria — Actualizar trayectoria laboral
+Flight::route('PUT /egresado/perfil/trayectoria', function () {
+    EgresadoController::updateTrayectoria();
+});
+
+// PUT /egresado/perfil/habilidades — Actualizar habilidades
+Flight::route('PUT /egresado/perfil/habilidades', function () {
+    EgresadoController::updateHabilidades();
+});
+
+// POST /egresado/foto — Subir foto de perfil
+Flight::route('POST /egresado/foto', function () {
+    EgresadoController::uploadFoto();
+});
+
+// GET /egresado/stats — Obtener estadísticas del egresado
+Flight::route('GET /egresado/stats', function () {
+    EgresadoController::getStats();
+});
+
 // === HEALTH CHECK ===
 
 Flight::route('GET /auth/health', function () {

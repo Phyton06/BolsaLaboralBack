@@ -25,6 +25,7 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/app/services/JwtService.php';
 require_once __DIR__ . '/app/middleware/Middleware.php';
 require_once __DIR__ . '/app/controllers/AuthController.php';
+require_once __DIR__ . '/app/controllers/egresado-controller.php';
 
 // Configuración de FlightPHP
 Flight::set('flight.base_url', '/');
