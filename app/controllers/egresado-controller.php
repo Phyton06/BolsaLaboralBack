@@ -91,10 +91,8 @@ class EgresadoController {
             
             $sql = "UPDATE egresados SET biografia_ia = :biografia WHERE usuario_id = :usuario_id";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':biografia' => $biografia,
-                ':usuario_id' => $userId
-            ]);
+            $stmt->bindValue(':biografia', $biografia, PDO::PARAM_STR);
+            $stmt->bindValue(':usuario_id', $userId, PDO::PARAM_INT);
             
             if ($stmt->rowCount() === 0) {
                 $pdo->rollBack();
@@ -147,12 +145,10 @@ class EgresadoController {
         try {
             $pdo->beginTransaction();
             
-            $sql = "UPDATE egresados SET trayectoria = :trayectoria WHERE usuario_id = :usuario_id";
+            $sql = "UPDATE egresados SET trayectoria = CAST(:trayectoria AS jsonb) WHERE usuario_id = :usuario_id";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':trayectoria' => $trayectoriaJson,
-                ':usuario_id' => $userId
-            ]);
+            $stmt->bindValue(':trayectoria', $trayectoriaJson, PDO::PARAM_STR);
+            $stmt->bindValue(':usuario_id', $userId, PDO::PARAM_INT);
             
             if ($stmt->rowCount() === 0) {
                 $pdo->rollBack();
@@ -197,12 +193,10 @@ class EgresadoController {
         try {
             $pdo->beginTransaction();
             
-            $sql = "UPDATE egresados SET habilidades = :habilidades WHERE usuario_id = :usuario_id";
+            $sql = "UPDATE egresados SET habilidades = CAST(:habilidades AS jsonb) WHERE usuario_id = :usuario_id";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':habilidades' => $habilidadesJson,
-                ':usuario_id' => $userId
-            ]);
+            $stmt->bindValue(':habilidades', $habilidadesJson, PDO::PARAM_STR);
+            $stmt->bindValue(':usuario_id', $userId, PDO::PARAM_INT);
             
             if ($stmt->rowCount() === 0) {
                 $pdo->rollBack();
