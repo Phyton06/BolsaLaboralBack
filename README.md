@@ -189,7 +189,19 @@ php -S localhost:8080 -t public/
 
 ## Testing
 
-No automated tests yet. Manual testing via test credentials below and the live demo. Planned: Pest.php for unit/integration tests.
+```bash
+composer test          # run all tests
+composer test:unit     # unit tests only
+```
+
+| Suite | Tests | Assertions | What it covers |
+|-------|-------|------------|----------------|
+| MatchingCalculator | 33 | 47 | 5-dimension matching, edge cases, feedback |
+| JwtService | 9 | 16 | Token generation, expiry, validation |
+| Helpers | 12 | 14 | Folio format, input validation |
+| Middleware | 8 | 8 | Token extraction, role checking |
+
+**CI:** GitHub Actions runs tests on PHP 8.1/8.2/8.3 with PostgreSQL on every push and PR.
 
 ## Engineering Metrics
 
@@ -299,7 +311,8 @@ Academic project — Universidad Tecnológica de la Costa
                     └─────────────┘
 ```
 
-- **Controllers** — Route handlers (Auth, Profile, Offers, Applications, Assessments, Admin)
+- **Controllers** — Route handlers (Auth, Profile, Offers, Applications, Assessments, Admin, IA)
 - **Services** — Business logic (JWT, AI matching, PDF generation, email)
 - **Middleware** — JWT auth, CORS, logging
 - **Migrations** — Phinx database migrations
+- **[docs/](docs/)** — AI implementation details, security guide, API contract, technical docs
