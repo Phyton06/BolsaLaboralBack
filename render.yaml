@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: bolsalaboral-back
+    runtime: php
+    plan: free
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php -S 0.0.0.0:$PORT index.php
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: bolsalaboral-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: bolsalaboral-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: bolsalaboral-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: bolsalaboral-db
+          property: user
+      - key: DB_PASS
+        fromDatabase:
+          name: bolsalaboral-db
+          property: password
+      - key: API_KEY
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://phyton06.github.io/BolsaLaboralFront
+      - key: APP_URL
+        value: https://bolsalaboral-back.onrender.com
+
+databases:
+  - name: bolsalaboral-db
+    plan: free
+    databaseName: bolsa_laboral
+    postgresMajorVersion: "16"

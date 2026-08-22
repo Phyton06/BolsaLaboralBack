@@ -21,6 +21,10 @@ require_once __DIR__ . '/app/Lib/helpers.php';
 // Cargar configuración de base de datos
 require_once __DIR__ . '/config/database.php';
 
+// Auto-init DB if tables don't exist (first boot on Render)
+require_once __DIR__ . '/app/Lib/db_init.php';
+initDatabase();
+
 // Cargar clases
 require_once __DIR__ . '/app/services/JwtService.php';
 require_once __DIR__ . '/app/middleware/Middleware.php';

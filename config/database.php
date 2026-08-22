@@ -2,25 +2,36 @@
 declare(strict_types=1);
 
 /**
- * Fábrica de conexiones PDO a PostgreSQL (Supabase).
+ * Fábrica de conexiones PDO a PostgreSQL.
  *
- * Uso:
- *   $pdo = getPgConnection();
- *
- * La conexión se crea una sola vez y se reutiliza (patrón singleton).
+ * Soporta:
+ *   - DATABASE_URL (Render, Supabase, etc.)
+ *   - Variables individuales DB_HOST, DB_PORT, etc.
  */
 
 function getPgConnection(): PDO {
     static $pdo = null;
 
     if ($pdo === null) {
-        $host = $_ENV['DB_HOST'] ?? 'localhost';
-        $port = $_ENV['DB_PORT'] ?? '5432';
-        $dbname = $_ENV['DB_NAME'] ?? 'postgres';
-        $user = $_ENV['DB_USER'] ?? 'postgres';
-        $pass = $_ENV['DB_PASS'] ?? '';
+        $databaseUrl = $_ENV['DATABASE_URL'] ?? null;
 
-        $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};sslmode=require";
+        if ($databaseUrl) {
+            // Parse DATABASE_URL: postgresql://user:pass@host:port/dbname
+            $parsed = parse_url($databaseUrl);
+            $host = $parsed['host'] ?? 'localhost';
+            $port = $parsed['port'] ?? '5432';
+            $dbname = ltrim($parsed['path'] ?? '/postgres', '/');
+            $user = $parsed['user'] ?? 'postgres';
+            $pass = $parsed['pass'] ?? '';
+        } else {
+            $host = $_ENV['DB_HOST'] ?? 'localhost';
+            $port = $_ENV['DB_PORT'] ?? '5432';
+            $dbname = $_ENV['DB_NAME'] ?? 'postgres';
+            $user = $_ENV['DB_USER'] ?? 'postgres';
+            $pass = $_ENV['DB_PASS'] ?? '';
+        }
+
+        $dsn = "pgsql:host={$host};port={$port};dbname={$dbname}";
 
         $pdo = new PDO($dsn, $user, $pass, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
