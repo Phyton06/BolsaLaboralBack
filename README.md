@@ -284,3 +284,22 @@ Key tables:
 ## License
 
 Academic project — Universidad Tecnológica de la Costa
+
+## Architecture
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Client    │────▶│  FlightPHP  │────▶│  PostgreSQL │
+│   (Angular) │     │   (Router)  │     │  (Supabase) │
+└─────────────┘     └──────┬──────┘     └─────────────┘
+                           │
+                    ┌──────┴──────┐
+                    │  Services   │
+                    │  (Business) │
+                    └─────────────┘
+```
+
+- **Controllers** — Route handlers (Auth, Profile, Offers, Applications, Assessments, Admin)
+- **Services** — Business logic (JWT, AI matching, PDF generation, email)
+- **Middleware** — JWT auth, CORS, logging
+- **Migrations** — Phinx database migrations
