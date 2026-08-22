@@ -1,5 +1,8 @@
 # BolsaLaboral Backend
 
+[![CI](https://github.com/Phyton06/BolsaLaboralBack/actions/workflows/ci.yml/badge.svg)](https://github.com/Phyton06/BolsaLaboralBack/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-62%20passed-brightgreen)](https://github.com/Phyton06/BolsaLaboralBack/actions/workflows/ci.yml)
+
 > REST API for the university job board — JWT auth, AI-powered job matching, assessments, and PDF generation.
 
 <details>
