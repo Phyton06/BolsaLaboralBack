@@ -191,6 +191,15 @@ php -S localhost:8080 -t public/
 
 No automated tests yet. Manual testing via test credentials below and the live demo. Planned: Pest.php for unit/integration tests.
 
+## Engineering Metrics
+
+| Metric | Value |
+|--------|-------|
+| API health endpoint | ~190ms (warm) |
+| API login (JWT) | ~550ms |
+| Docker image | ~600MB (php:8.4-cli + extensions) |
+| Deployment | Render free tier, auto-deploy from main |
+
 ## Environment Variables
 
 ```env
