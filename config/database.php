@@ -31,7 +31,7 @@ function getPgConnection(): PDO {
             $pass = $_ENV['DB_PASS'] ?? '';
         }
 
-        $dsn = "pgsql:host={$host};port={$port};dbname={$dbname}";
+        $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};sslmode=require";
 
         $pdo = new PDO($dsn, $user, $pass, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

@@ -1,40 +1,22 @@
 services:
   - type: web
     name: bolsalaboral-back
-    runtime: php
+    runtime: docker
     plan: free
-    buildCommand: composer install --no-dev --optimize-autoloader
-    startCommand: php -S 0.0.0.0:$PORT index.php
     envVars:
       - key: DB_HOST
-        fromDatabase:
-          name: bolsalaboral-db
-          property: host
+        value: aws-1-us-west-2.pooler.supabase.com
       - key: DB_PORT
-        fromDatabase:
-          name: bolsalaboral-db
-          property: port
+        value: "6543"
       - key: DB_NAME
-        fromDatabase:
-          name: bolsalaboral-db
-          property: database
+        value: postgres
       - key: DB_USER
-        fromDatabase:
-          name: bolsalaboral-db
-          property: user
+        value: postgres.wpcquwfejnfxpobzquwg
       - key: DB_PASS
-        fromDatabase:
-          name: bolsalaboral-db
-          property: password
+        value: BSIxW4Tpe3yaewws
       - key: API_KEY
-        generateValue: true
+        value: bolsalaboral-hackathon-2026
       - key: FRONTEND_URL
         value: https://phyton06.github.io/BolsaLaboralFront
       - key: APP_URL
-        value: https://bolsalaboral-back.onrender.com
-
-databases:
-  - name: bolsalaboral-db
-    plan: free
-    databaseName: bolsa_laboral
-    postgresMajorVersion: "16"
+        value: https://bolsalaboralback.onrender.com
