@@ -45,7 +45,11 @@ Flight::set('flight.handle_errors', true);
 // Configuración CORS
 Flight::map('handleCors', function () {
     $origin = $_ENV['FRONTEND_URL'] ?? 'http://localhost:3000';
-    header("Access-Control-Allow-Origin: {$origin}");
+    $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    $allowedOrigins = [$origin, 'https://phyton06.github.io'];
+    if (in_array($requestOrigin, $allowedOrigins)) {
+        header("Access-Control-Allow-Origin: {$requestOrigin}");
+    }
     header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
     header('Access-Control-Allow-Headers: Content-Type, Authorization');
     header('Access-Control-Allow-Credentials: true');
