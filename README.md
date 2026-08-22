@@ -187,6 +187,10 @@ psql -U postgres -d bolsa_laboral -f db/seed.sql
 php -S localhost:8080 -t public/
 ```
 
+## Testing
+
+No automated tests yet. Manual testing via test credentials below and the live demo. Planned: Pest.php for unit/integration tests.
+
 ## Environment Variables
 
 ```env
