@@ -27,4 +27,4 @@ jobs:
           php-version: '8.4'
           extensions: pdo, pgsql, mbstring, json, openssl
       - run: composer install --no-progress
-      - run: vendor/bin/phpunit tests/
+      - run: vendor/bin/phpunit --bootstrap tests/bootstrap.php tests/Unit/
