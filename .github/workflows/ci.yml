@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.4'
           extensions: pdo, pgsql, mbstring, json, openssl
       - run: composer install --no-progress
       - run: vendor/bin/phpunit
